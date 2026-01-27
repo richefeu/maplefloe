@@ -1,0 +1,13 @@
+# Range of radius for the FloeElements
+radiusRange 0.8 1.0
+
+# Global shape of the floe (Banc de glace)
+#         xmin xmax ymin ymax
+Rectangle 0    10   0    6
+
+# Circle 10
+
+# Toutes ces solutions reviennent à faire une loop qu'on peut entrer directement à la main
+# Loop 5  x1 y1  x2 y2  x3 y3  x4 y4  x5 y5
+
+
