@@ -5,8 +5,7 @@ Interaction::Interaction() : i(0), j(0) {}
 Interaction::Interaction(size_t I, size_t J) : i(I), j(J) {}
 
 void Interaction::copy(Interaction &I) {
-  isBonded           = I.isBonded;
-  //isSameMaterialBond = I.isSameMaterialBond;
+  isBonded = I.isBonded;
 
   fn  = I.fn;
   fnb = I.fnb;
@@ -14,13 +13,15 @@ void Interaction::copy(Interaction &I) {
   ftb = I.ftb;
 
   meff = I.meff;
-  kn   = I.kn;
-  kt   = I.kt;
-  mu   = I.mu;
-  muR  = I.muR;
-  fadh = I.fadh;
+  //kn   = I.kn;
+  //kt   = I.kt;
+  //mu   = I.mu;
+  //muR  = I.muR;
+  //fadh = I.fadh;
 
-  damp = I.damp;
-  Gs   = I.Gs;
+  //damp = I.damp;
+  A = I.A;
+  coverage = I.coverage;
+  Gc   = I.Gc;
   dn0  = I.dn0;
 }

@@ -12,7 +12,7 @@ void MFloe::head() {
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⣶⣄⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣴⣿⡄⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠰⣶⣾⣿⣿⣿⣿⣿⡇⠀⢠⣷⣤⣶⣿⡇⠀⠀⠀MappleFloe - " << MFLOE_VERSION << std::endl;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣀⣿⣿⣿⣿⣿⣧⣀⠀⠀" << std::endl;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣀⣿⣿⣿⣿⣿⣧⣀⠀⠀Université Grenoble Alpes" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⣷⣦⣀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀" << std::endl;
   std::cout << "⠀⠀⢲⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀" << std::endl;
@@ -22,7 +22,6 @@ void MFloe::head() {
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀     " << std::endl;
   std::cout << std::endl;
 }
-
 
 // ---------------------------------------------------------
 // Saves the current configuration data to a file with
@@ -51,38 +50,27 @@ void MFloe::saveConf(const char *name) {
   conf << "interOut " << interOut << std::endl;
   conf << "interHist " << interHist << std::endl;
   conf << "dVerlet " << dVerlet << std::endl;
-  // conf << "gravity " << gravity << std::endl;
+  conf << "zgravNorm " << zgravNorm << std::endl;
   conf << "iconf " << iconf << std::endl;
-  // conf << "Xperiod " << xmin << ' ' << xmax << std::endl;
 
-  // conf << "bottom " << bottom.Idx.size() << ' ' << bottom.K << std::endl;
-  // conf << std::setprecision(15);
-  // for (size_t i = 0; i < bottom.Idx.size(); i++) { conf << bottom.Idx[i] << ' ' << bottom.pos[i] << std::endl; }
+  conf << "kn " << kn << std::endl;
+  conf << "kt " << kt << std::endl;
+  conf << "mu " << mu << std::endl;
+  conf << "Gc " << Gc << std::endl;
 
-  // conf << std::setprecision(6);
-  // conf << "top " << top.Idx.size() << ' ' << top.K << std::endl;
-  // conf << std::setprecision(15);
-  // for (size_t i = 0; i < top.Idx.size(); i++) { conf << top.Idx[i] << ' ' << top.pos[i] << std::endl; }
-
-  // conf << "Loading ";
-  // if (Load != nullptr) {
-  //   Load->write(conf);
-  // } else {
-  //   std::cout << SPICE_WARN << "Loading is not defined" << std::endl;
-  //   conf << "!! TO BE ADDED !!" << std::endl;
-  // }
-
-  // LA il faut faire le ménage
+  if (!Drivings.empty()) {
+    conf << "nDriven " << Drivings.size() << std::endl;
+    for (size_t d = 0; d < Drivings.size(); ++d) { Drivings[d]->write(conf); }
+  }
 
   conf << "FloeElements " << FloeElements.size() << std::endl;
   conf << std::setprecision(15);
   for (size_t i = 0; i < FloeElements.size(); i++) {
-    conf << FloeElements[i].pos << ' ' << FloeElements[i].vel << ' ' << FloeElements[i].acc << ' ' << FloeElements[i].rot << ' '
-         << FloeElements[i].vrot << ' ' << FloeElements[i].arot << ' ' << FloeElements[i].radius << ' ' << FloeElements[i].inertia
-         << ' ' << FloeElements[i].mass << ' ';
-    //conf << FloeElements[i].normalStiffness << ' ' << FloeElements[i].tangentialStiffness << ' '
-    //     << FloeElements[i].normalViscDampingRate << ' ' << FloeElements[i].friction << ' ' << FloeElements[i].rollingFriction
-    //     << ' ' << FloeElements[i].adhesion << ' ' << FloeElements[i].GcGlue << std::endl;
+    conf << FloeElements[i].pos << ' ' << FloeElements[i].zpos << ' ' << FloeElements[i].vel << ' '
+         << FloeElements[i].zvel << ' ' << FloeElements[i].acc << ' ' << FloeElements[i].zacc << ' '
+         << FloeElements[i].rot << ' ' << FloeElements[i].vrot << ' ' << FloeElements[i].arot << ' '
+         << FloeElements[i].radius << ' ' << FloeElements[i].height << ' ' << FloeElements[i].inertia << ' '
+         << FloeElements[i].mass << ' ';
     conf << std::endl;
   }
 
@@ -96,9 +84,9 @@ void MFloe::saveConf(const char *name) {
   for (size_t i = 0; i < Interactions.size(); i++) {
     if (fabs(Interactions[i].fn) < 1e-20 && Interactions[i].isBonded == false) { continue; }
     conf << Interactions[i].i << ' ' << Interactions[i].j << ' ' << Interactions[i].isBonded << ' '
-         /*<< Interactions[i].isSameMaterialBond */ << ' ' << Interactions[i].fn << ' ' << Interactions[i].fnb << ' '
-         << Interactions[i].ft << ' ' << Interactions[i].ftb << ' ' << Interactions[i].damp << ' ' << Interactions[i].Gs
-         << ' ' << Interactions[i].dn0 << std::endl;
+         << Interactions[i].fn << ' ' << Interactions[i].fnb << ' ' << Interactions[i].ft << ' ' << Interactions[i].ftb
+         << ' ' << Interactions[i].fs << ' ' << Interactions[i].fsb << ' ' << Interactions[i].A << ' '
+         << Interactions[i].coverage << ' ' << Interactions[i].Gc << ' ' << Interactions[i].dn0 << std::endl;
   }
 }
 
@@ -129,7 +117,7 @@ void MFloe::loadConf(const char *name) {
   // Check header
   std::string prog;
   conf >> prog;
-  if (prog != "MappleFloe") { std::cout << MFLOE_WARN << "This is not file for MappleFloe executable!" << std::endl; }
+  if (prog != "MFloe") { std::cout << MFLOE_WARN << "This seems not to be an input file for MappleFloe!" << std::endl; }
   std::string date;
   conf >> date;
   if (date != MFLOE_VERSION) { std::cout << MFLOE_WARN << "The version-date should be " << MFLOE_VERSION << std::endl; }
@@ -155,40 +143,39 @@ void MFloe::loadConf(const char *name) {
       conf >> interHist;
     } else if (token == "dVerlet") {
       conf >> dVerlet;
+    } else if (token == "zgravNorm") {
+      conf >> zgravNorm;
     } else if (token == "iconf") {
       conf >> iconf;
-    } /*else if (token == "Loading") {
-      std::string loadingName;
-      conf >> loadingName;
-      if (Load != nullptr) {  // Load already exist
-        getline(conf, token); // ignore the rest of the current line
-        conf >> token;        // next token
-        continue;
+    } else if (token == "kn") {
+      conf >> kn;
+    } else if (token == "kt") {
+      conf >> kt;
+    } else if (token == "mu") {
+      conf >> mu;
+    } else if (token == "Gc") {
+      conf >> Gc;
+    } else if (token == "nDriven") {
+      size_t nDriven;
+      conf >> nDriven;
+      Drivings.clear();
+      std::string keyword;
+      for (size_t d = 0; d < nDriven; ++d) {
+        conf >> keyword;
+        Driving *drv = Driving::create(keyword);
+        if (drv != nullptr) {
+          drv->read(conf);
+          Drivings.push_back(drv);
+        }
       }
-      if (loadingName[0] == '!') {
-        std::cout << SPICE_WARN << "Remember to define the Loading" << std::endl;
-        getline(conf, token); // ignore the rest of the current line
-        conf >> token;        // next token
-        continue;
-      }
-      Load = Loading::create(loadingName.c_str());
-      if (Load == nullptr) {
-        std::cout << SPICE_WARN << "Could not create the Loading" << std::endl;
-      } else {
-        Load->box = this;
-        Load->read(conf);
-      }
-
-    } */
-    else if (token == "FloeElements") {
+    } else if (token == "FloeElements") {
       size_t nb;
       conf >> nb;
       FloeElements.clear();
       FloeElement P;
       for (size_t i = 0; i < nb; i++) {
-        conf >> P.pos >> P.vel >> P.acc >> P.rot >> P.vrot >> P.arot >> P.radius >> P.inertia >> P.mass;
-        //conf >> P.normalStiffness >> P.tangentialStiffness >> P.normalViscDampingRate >> P.friction >>
-        //    P.rollingFriction >> P.adhesion >> P.GcGlue;
+        conf >> P.pos >> P.zpos >> P.vel >> P.zvel >> P.acc >> P.zacc >> P.rot >> P.vrot >> P.arot >> P.radius >>
+            P.height >> P.inertia >> P.mass;
 
         FloeElements.push_back(P);
       }
@@ -198,8 +185,8 @@ void MFloe::loadConf(const char *name) {
       Interactions.clear();
       Interaction I;
       for (size_t k = 0; k < nb; k++) {
-        conf >> I.i >> I.j >> I.isBonded >> /*I.isSameMaterialBond >>*/ I.fn >> I.fnb >> I.ft >> I.ftb >> I.damp >> I.Gs >>
-            I.dn0;
+        conf >> I.i >> I.j >> I.isBonded >> I.fn >> I.fnb >> I.ft >> I.ftb >> I.fs >> I.fsb >> I.A >> I.coverage >>
+            I.Gc >> I.dn0;
         Interactions.push_back(I);
       }
     }
@@ -207,12 +194,16 @@ void MFloe::loadConf(const char *name) {
     // Processing commands that should be placed after
     // the definition of FloeElements (at the very end of the conf-file preferably).
     // This commands generally added in input-files but not saved in the conf-files
-    else if (token == "activateBonds") {
+    else if (token == "computeMasseProperties") {
       warn_if_wrong_place(token);
-      //bool isSameMaterial;
+      double density;
+      conf >> density;
+      computeMasseProperties(density);
+    } else if (token == "activateBonds") {
+      warn_if_wrong_place(token);
       double distanceMaxForGluing;
-      conf /*>> isSameMaterial*/ >> distanceMaxForGluing;
-      activateBonds(/*isSameMaterial,*/ distanceMaxForGluing);
+      conf >> distanceMaxForGluing;
+      activateBonds(distanceMaxForGluing);
     }
 
     // Unknown token
@@ -225,8 +216,6 @@ void MFloe::loadConf(const char *name) {
 
   // precompute things ========================================
   updateBoundLimits();
-  // applyEmbeddedDataProfiles(); // set the property profiles that have been eventually (re-)set
-  // combineParameters();
 
   // some checks
   if (FloeElements.empty()) { std::cout << MFLOE_WARN << "No FloeElements" << std::endl; }
@@ -237,15 +226,34 @@ void MFloe::loadConf(const char *name) {
 // Compute ymin and ymax
 // ---------------------------------------------------------
 void MFloe::updateBoundLimits() {
-  // TODO: Il faut calculer les xmin et xmax aussi
-  // et mettre cela dans un AABB
-  ymin = FloeElements[0].pos.y - FloeElements[0].radius;
-  ymax = FloeElements[0].pos.y + FloeElements[0].radius;
+  double xmin = FloeElements[0].pos.x - FloeElements[0].radius;
+  double xmax = FloeElements[0].pos.x + FloeElements[0].radius;
+  double ymin = FloeElements[0].pos.y - FloeElements[0].radius;
+  double ymax = FloeElements[0].pos.y + FloeElements[0].radius;
   for (size_t i = 1; i < FloeElements.size(); ++i) {
+    double x = FloeElements[i].pos.x + FloeElements[i].radius;
+    if (x > xmax) { xmax = x; }
+    x = FloeElements[i].pos.x - FloeElements[i].radius;
+    if (x < xmin) { xmin = x; }
+
     double y = FloeElements[i].pos.y + FloeElements[i].radius;
     if (y > ymax) { ymax = y; }
     y = FloeElements[i].pos.y - FloeElements[i].radius;
     if (y < ymin) { ymin = y; }
+  }
+
+  aabb.min.set(xmin, ymin);
+  aabb.max.set(xmax, ymax);
+}
+
+void MFloe::computeMasseProperties(double density) {
+  for (size_t i = 0; i < FloeElements.size(); ++i) {
+    double R = FloeElements[i].radius;
+    double H = FloeElements[i].height;
+    double V = M_PI * R * R * H;
+
+    FloeElements[i].mass    = V * density;
+    FloeElements[i].inertia = 0.5 * FloeElements[i].mass * R * R;
   }
 }
 
@@ -258,7 +266,7 @@ void MFloe::activateBonds(/*bool sameMaterial,*/ double dmax) {
   // In case the conf-file has no interactions, the neighbor list is updated
   updateNeighbors(dmax);
 
-  //double Lperiod = xmax - xmin;
+  // double Lperiod = xmax - xmin;
 
   std::cout << " routine to activate bonds" << std::endl;
 
@@ -267,16 +275,16 @@ void MFloe::activateBonds(/*bool sameMaterial,*/ double dmax) {
     size_t j = Interactions[k].j;
 
     vec2r branch = FloeElements[j].pos - FloeElements[i].pos;
-    //branch.x += getBranchShift(branch.x, Lperiod);
+    // branch.x += getBranchShift(branch.x, Lperiod);
 
     double branchLen2 = norm2(branch);
     double sum        = dmax + FloeElements[i].radius + FloeElements[j].radius;
     if (branchLen2 <= sum * sum) {
 
       // switch to a cemented/bonded link
-      Interactions[k].isBonded           = true;
-      //Interactions[k].isSameMaterialBond = sameMaterial;
-      // TODO Use Gc and min diameter to define a threshold Wmax
+      Interactions[k].isBonded = true;
+      // Interactions[k].isSameMaterialBond = sameMaterial;
+      //  TODO Use Gc and min diameter to define a threshold Wmax
 
       std::cout << " activate bond = " << k << std::endl;
 
@@ -369,9 +377,9 @@ void MFloe::updateNeighbors(double dmax) {
 /*
 toutes les particules sont libre de mouvement (on ne peut pas bloquer imposer une vitesse).
 Les statégies de chargement porterons idéalement sur l'imposition de force (éviter d'imposer une vitesse).
-Par exemple, le vent pourrait être un champ de vitesse qu'on transforme en champs de forces en tenant compte de la surface des particules.
+Par exemple, le vent pourrait être un champ de vitesse qu'on transforme en champs de forces en tenant compte de la
+surface des particules.
 */
-
 
 void MFloe::integrate() {
   double dt_2  = 0.5 * dt;
@@ -381,9 +389,7 @@ void MFloe::integrate() {
 
   std::ofstream stressOut("stress.out.txt");
 
-  // double Lperiod = xmax - xmin;
-
-  // Load->init();
+  size_t nDriven = Drivings.size();
 
   saveConf(iconf); // save before any computation
   screenLog();
@@ -393,12 +399,22 @@ void MFloe::integrate() {
   std::cout << MFLOE_INFO << "Beginning iterations." << std::endl;
   while (t < tmax) {
 
-    // Load->servo();
+    for (size_t i = 0; i < nDriven; ++i) {
+      Drivings[i]->set(t);
+      FloeElements[i].vel.set(Drivings[i]->vx, Drivings[i]->vy);
+      FloeElements[i].zvel = Drivings[i]->vz;
+      FloeElements[i].vrot = Drivings[i]->vrot;
 
-    // Load->velocityVerlet_halfStep1();
-    for (size_t i = 0; i < FloeElements.size(); i++) {
+      FloeElements[i].pos += dt * FloeElements[i].vel;
+      FloeElements[i].zpos += dt * FloeElements[i].zvel;
+      FloeElements[i].rot += dt * FloeElements[i].vrot;
+    }
+
+    for (size_t i = nDriven; i < FloeElements.size(); i++) {
       FloeElements[i].pos += dt * FloeElements[i].vel + dt2_2 * FloeElements[i].acc;
+      FloeElements[i].zpos += dt * FloeElements[i].zvel + dt2_2 * FloeElements[i].zacc;
       FloeElements[i].vel += dt_2 * FloeElements[i].acc;
+      FloeElements[i].zvel += dt_2 * FloeElements[i].zacc;
 
       FloeElements[i].rot += dt * FloeElements[i].vrot + dt2_2 * FloeElements[i].arot;
       FloeElements[i].vrot += dt_2 * FloeElements[i].arot;
@@ -406,9 +422,9 @@ void MFloe::integrate() {
 
     accelerations();
 
-    // Load->velocityVerlet_halfStep2();
-    for (size_t i = 0; i < FloeElements.size(); i++) {
+    for (size_t i = nDriven; i < FloeElements.size(); i++) {
       FloeElements[i].vel += dt_2 * FloeElements[i].acc;
+      FloeElements[i].zvel += dt_2 * FloeElements[i].zacc;
       FloeElements[i].vrot += dt_2 * FloeElements[i].arot;
     }
 
@@ -422,7 +438,7 @@ void MFloe::integrate() {
 
     interOutC += dt;
     if (interOutC > interOut - dt_2) {
-      stressOut << t << " " << Sig /*<< " " << SigConnect*/ << std::endl;
+      stressOut << t << std::endl; // pas très util pour le moment
       interOutC = 0.0;
     }
 
@@ -445,25 +461,19 @@ void MFloe::accelerations() {
   // Set forces and moments to zero
   for (size_t i = 0; i < FloeElements.size(); ++i) {
     FloeElements[i].force.reset();
+    FloeElements[i].zforce = 0.0;
     FloeElements[i].moment = 0.0;
-    FloeElements[i].acc    = gravity;
-    FloeElements[i].arot   = 0.0;
+    FloeElements[i].acc.reset();
+    FloeElements[i].zacc = 0.0; // gravity will be added at the end
+    FloeElements[i].arot = 0.0;
   }
-  Sig.reset();
-  //SigConnect.reset();
 
   computeForcesAndMoments();
-  // computeFarConnectionForces();
-
-  // updateBoundLimits();
-  // double invV = 1.0 / ((xmax - xmin) * (ymax - ymin));
-  // Sig *= invV;
-  // SigConnect *= invV;
 
   // Finally compute the accelerations (translation and rotation)
-  // Load->forceDrivenAcceleration();
   for (size_t i = 0; i < FloeElements.size(); i++) {
-    FloeElements[i].acc  = gravity + FloeElements[i].force / FloeElements[i].mass;
+    FloeElements[i].acc  = FloeElements[i].force / FloeElements[i].mass;
+    FloeElements[i].zacc = FloeElements[i].zforce / FloeElements[i].mass - zgravNorm;
     FloeElements[i].arot = FloeElements[i].moment / FloeElements[i].inertia;
   }
 }
@@ -472,7 +482,7 @@ void MFloe::accelerations() {
 // The function to compute force interactions between FloeElements
 // ---------------------------------------------------------
 void MFloe::computeForcesAndMoments() {
-  // double Lperiod = xmax - xmin;
+
   for (size_t k = 0; k < Interactions.size(); ++k) {
 
     size_t i = Interactions[k].i;
@@ -487,7 +497,7 @@ void MFloe::computeForcesAndMoments() {
 
     vec2r unit_t(-unit_n.y, unit_n.x);
     double dn = len - FloeElements[i].radius - FloeElements[j].radius;
-    double vn = relVel * unit_n;
+    // double vn = relVel * unit_n;
 
     double Li   = FloeElements[i].radius + 0.5 * dn;
     double Lj   = FloeElements[j].radius + 0.5 * dn;
@@ -501,7 +511,7 @@ void MFloe::computeForcesAndMoments() {
       // FIXME: il faut ajouter les variables dnb et dtb
 
       // calculate the bonded forces
-      Interactions[k].fnb = -Interactions[k].kn * (dn - Interactions[k].dn0);
+      Interactions[k].fnb = -kn * (dn - Interactions[k].dn0);
       // Interactions[k].ftb = Interactions[k].ft - Interactions[k].kt * dt * vijt;
 
     } else { // i and j not bonded
@@ -516,28 +526,27 @@ void MFloe::computeForcesAndMoments() {
     // TODO : IL FAUT RETIRER LA NOTION DE isSameMaterialBond
     // frictional contact (possibly in addition to bond)
 
-      if (Interactions[k].isBonded == false && dn < 0.0) { // it means that i and j are in contact
+    if (Interactions[k].isBonded == false && dn < 0.0) { // it means that i and j are in contact
 
-        double fne = -Interactions[k].kn * dn;   // elastic normal force
-        double fnv = -Interactions[k].damp * vn; // viscous normal force
+      double fne = -kn * dn; // elastic normal force
+      // double fnv = -Interactions[k].damp * vn; // viscous normal force
 
-        Interactions[k].fn = fne + fnv;
-        if (Interactions[k].fn < 0.0) { Interactions[k].fn = 0.0; }
+      Interactions[k].fn = fne /* + fnv */;
+      if (Interactions[k].fn < 0.0) { Interactions[k].fn = 0.0; }
 
-        // Tangential force (friction)
-        double ft    = Interactions[k].ft - Interactions[k].kt * (dt * vijt);
-        double ftest = Interactions[k].mu * Interactions[k].fn; // remember that fn >= 0
-        if (fabs(ft) > ftest) { ft = (ft > 0.0) ? ftest : -ftest; }
-        Interactions[k].ft = ft;
+      // Tangential force (friction)
+      double ft    = Interactions[k].ft - kt * (dt * vijt);
+      double ftest = mu * Interactions[k].fn; // remember that fn >= 0
+      if (fabs(ft) > ftest) { ft = (ft > 0.0) ? ftest : -ftest; }
+      Interactions[k].ft = ft;
 
-        // Adhesion
-        // TODO:
-        // Interactions[k].fn -= fadh;
-      }
-    
+      // Adhesion
+      // TODO:
+      // Interactions[k].fn -= fadh;
+    }
 
     // ===================================
-    // BREAKAGE OF BONDS
+    // BREAKAGE OF ICE-BONDS
     // ===================================
     // TODO if (isBonded) ...
 
@@ -549,10 +558,10 @@ void MFloe::computeForcesAndMoments() {
     FloeElements[j].moment -= (Interactions[k].ft + Interactions[k].ftb) * Lj;
 
     // Internal stress
-    Sig.xx += f.x * branch.x;
-    Sig.xy += f.x * branch.y;
-    Sig.yx += f.y * branch.x;
-    Sig.yy += f.y * branch.y;
+    // Sig.xx += f.x * branch.x;
+    // Sig.xy += f.x * branch.y;
+    // Sig.yx += f.y * branch.x;
+    // Sig.yy += f.y * branch.y;
 
-  } // Loop over interactions
+  } // End loop over interactions
 }

@@ -407,7 +407,10 @@ void setColorOption(int option) {
 void setColor(int i, GLfloat alpha) {
   colorRGBA col;
   if (particle_color_option == COLOR_NONE) {
-    col.r = col.g = col.b = 200;
+    // blue is like ice
+    col.r = 157;
+    col.g = 230;
+    col.b = 245;
   } else {
     colorTable.getRGB(color_values[i], &col);
   }
@@ -490,7 +493,7 @@ void drawContacts() {
 
   glLineWidth(1.5f);
   // double Xmid = 0.5 * (Conf.xmin + Conf.xmax);
-  double L     = Conf.xmax - Conf.xmin;
+  double L     = Conf.aabb.max.x - Conf.aabb.min.x;
   double halfL = 0.5 * L;
 
   // grain-grain
@@ -517,7 +520,7 @@ void drawContacts() {
 void drawForces() {
   if (mouse_mode != NOTHING) { return; }
 
-  double L     = Conf.xmax - Conf.xmin;
+  double L     = Conf.aabb.max.x - Conf.aabb.min.x;
   double halfL = 0.5 * L;
 
   // grain-grain

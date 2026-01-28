@@ -20,7 +20,7 @@ $(shell git clone https://github.com/richefeu/toofus.git > /dev/null 2>&1)
 endif
 
 # The list of source files for the library SPICE
-SOURCES = MappleFloe.cpp FloeElement.cpp Interaction.cpp MFloeAssembler.cpp
+SOURCES = MappleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp MFloeAssembler.cpp
 
 # Each cpp file listed below corresponds to an object file
 OBJECTS = $(SOURCES:%.cpp=%.o)
