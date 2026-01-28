@@ -3,12 +3,9 @@
 </p>
 
 
-Briser les mystères de la glace, comme ceux d’Oak Island.
-
-Break the mysteries of ice, just like those of Oak Island.
-
 # What is `MappleFloe`?
 
+This is an interesting question. 
 
 
 
