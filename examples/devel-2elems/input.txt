@@ -1,0 +1,38 @@
+MFloe 2026.dev
+t 0
+tmax 1000e-6
+dt 1e-6
+interClose 1e-5
+interOut 0.01
+interHist 10e-6
+dVerlet 0.1
+zgravNorm 0.0
+iconf 0
+
+kn 1e6
+kt 1e6
+mu 0.5
+Gc 2.0
+
+# xvel yvel zvel vrot
+nDriven 2
+imposedVelocities 0 0 0 0
+imposedVelocities 10 0 0 0
+# could be oscillate xAmpl xPeriod yAmpl yPeriod zAmpl zPeriod rotAmpl rotPeriod...
+
+#xpos ypos zpos xvel yvel zvel xacc yacc zacc rot vrot arot radius inertia mass
+FloeElements 2
+0 0 0  0 0 0  0 0 0  0 0 0    1 0.25  0 0
+2 0 0  0 0 0  0 0 0  0 0 0    1 0.25  0 0
+
+# ice density
+computeMasseProperties 1000.0
+
+
+
+
+
+
+
+
+
