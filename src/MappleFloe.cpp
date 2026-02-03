@@ -607,7 +607,7 @@ void MFloe::computeForcesAndMoments() {
         Interactions[k].fs = 0.0;
         //Interactions[k].t0 = t; // pour le healing
         Interactions[k].dn0 = dn;
-        //continue;
+        continue; // next interaction k
       }
 
       // Elastic normal repulsion force
