@@ -24,6 +24,7 @@ void Interaction::copy(Interaction &I) {
   //damp = I.damp;
   A = I.A;
   coverage = I.coverage;
-  Gc   = I.Gc;
+  //Gc   = I.Gc;
   dn0  = I.dn0;
+  t0  = I.t0;
 }

@@ -42,6 +42,10 @@ public:
   int iconf{0};
   int iconfMaxEstimated{0};
   double zgravNorm{9.81};
+   
+  double activationTime{0.0};
+  double healingTime{0.0};
+  double coverage0{0.0};
 
   AABB_2D aabb;
 

@@ -14,13 +14,17 @@ kt 1e6
 mu 0.5
 Gc 25
 
+coverage0 0
+activationTime 0.0019
+healingTime 100.
+
 # xvel yvel zvel vrot
 nDriven 2
 imposedVelocities 0 0 0 0
 imposedVelocityCycles 
-0.001 50 0 0 0
-0.002 0 0 0 0
-0.002 -30 0 0 0
+0.0015 50 0 0 0
+0.0015 -51 0 0 0
+0.002  0 0 0 0
 
 # could be oscillate xAmpl xPeriod yAmpl yPeriod zAmpl zPeriod rotAmpl rotPeriod...
 
@@ -29,14 +33,14 @@ FloeElements 2
 0 0 0  0 0 0  0 0 0  0 0 0    1 0.25  0 0
 2 0 0  0 0 0  0 0 0  0 0 0    1 0.25  0 0
 
-#  i j isBonded fn fnb ft ftb fs fsb A coverage Gc dn0
-Interactions 1
-0 1  1   0 0 0   0 0 0   0.5  1.0  2.0  0.0
+#  i j isBonded fn fnb ft ftb fs fsb A coverage dn0
+#Interactions 1
+#0 1  1   0 0 0   0 0 0   0.5  1.0  0.0
 
 # ice density
 computeMasseProperties 1000.0
 
-
+activateBonds 0.1
 
 
 

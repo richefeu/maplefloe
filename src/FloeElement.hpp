@@ -27,6 +27,8 @@ struct FloeElement {
   vec2r force;        // resultant force
   double zforce{0.0}; // out-of-plane resultant force
   double moment{0.0}; // resultant moment
+  
+  int Z; // number of bonds and contacts 
 
   FloeElement(); // Ctor
 };

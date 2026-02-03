@@ -27,8 +27,10 @@ struct Interaction {
   // double damp{0.0}; // viscuous damping rate
   double A{0.0};        // surface
   double coverage{0.0}; // Ice coverage ratio
-  double Gc{0.0};       // Griffith parameter
+  //double Gc{0.0};       // Griffith parameter
   double dn0{0.0};      // initial distance for bonds; fnb(dn0) = 0
+  
+  double t0{-1.0}; // il faudra un bond commentaire pour expliquer
 
   Interaction();
   Interaction(size_t I, size_t J);
