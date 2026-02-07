@@ -20,7 +20,7 @@ $(shell git clone https://github.com/richefeu/toofus.git > /dev/null 2>&1)
 endif
 
 # The list of source files for the library SPICE
-SOURCES = MappleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp MFloeAssembler.cpp
+SOURCES = MapleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp MFloeAssembler.cpp
 
 # Each cpp file listed below corresponds to an object file
 OBJECTS = $(SOURCES:%.cpp=%.o)
@@ -34,8 +34,8 @@ clean:
 	rm -f *.o
 	@echo "\033[0;32m-> Remove compiled applications\033[0m"
 	rm -f pac run see
-	@echo "\033[0;32m-> Remove libMappleFloe.a\033[0m"
-	rm -f libMappleFloe.a
+	@echo "\033[0;32m-> Remove libMapleFloe.a\033[0m"
+	rm -f libMapleFloe.a
 
 clean+: clean
 	@echo "\033[0;32m-> Remove local folder toofus\033[0m"
@@ -51,21 +51,21 @@ clone_toofus:
 	@echo "\033[0;32m-> COMPILING OBJECT" $@ "\033[0m"
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-libMappleFloe.a: $(OBJECTS)
+libMapleFloe.a: $(OBJECTS)
 	@echo "\033[0;32m-> BUILDING LIBRARY" $@ "\033[0m"
 	ar rcs $@ $^
 
-run: run.cpp libMappleFloe.a
+run: run.cpp libMapleFloe.a
 	@echo "\033[0;32m-> BUILDING RUN APPLICATION" $@ "\033[0m"
 	$(CXX) $(CXXFLAGS) -I toofus/toofus-gate -c $< -o run.o
-	$(CXX) -o $@ run.o libMappleFloe.a
+	$(CXX) -o $@ run.o libMapleFloe.a
 
-see: see.cpp libMappleFloe.a
+see: see.cpp libMapleFloe.a
 	@echo "\033[0;32m-> BUILDING SEE APPLICATION" $@ "\033[0m"
 	$(CXX) $(CXXFLAGS) -c $< -o see.o $(GLFLAGS)
-	$(CXX) -o $@ see.o libMappleFloe.a $(GLLINK)
+	$(CXX) -o $@ see.o libMapleFloe.a $(GLLINK)
 
-pac: pac.cpp libMappleFloe.a
+pac: pac.cpp libMapleFloe.a
 	@echo "\033[0;32m-> BUILDING PAC APPLICATION" $@ "\033[0m"
 	$(CXX) $(CXXFLAGS) -I toofus/toofus-gate -c $< -o pac.o $(GLFLAGS)
-	$(CXX) -o $@ pac.o libMappleFloe.a $(GLLINK)
+	$(CXX) -o $@ pac.o libMapleFloe.a $(GLLINK)

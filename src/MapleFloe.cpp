@@ -1,6 +1,6 @@
 // ....
 
-#include "MappleFloe.hpp"
+#include "MapleFloe.hpp"
 
 MFloe::MFloe() {}
 
@@ -11,7 +11,7 @@ void MFloe::head() {
   std::cout << '\n';
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⣶⣄⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣴⣿⡄⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀" << std::endl;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠰⣶⣾⣿⣿⣿⣿⣿⡇⠀⢠⣷⣤⣶⣿⡇⠀⠀⠀MappleFloe - " << MFLOE_VERSION << std::endl;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠰⣶⣾⣿⣿⣿⣿⣿⡇⠀⢠⣷⣤⣶⣿⡇⠀⠀⠀MapleFloe - " << MFLOE_VERSION << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣀⣿⣿⣿⣿⣿⣧⣀⠀⠀Université Grenoble Alpes" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⣷⣦⣀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀" << std::endl;
   std::cout << "⠀⠀⢲⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀" << std::endl;
@@ -117,7 +117,7 @@ void MFloe::loadConf(const char *name) {
   // Check header
   std::string prog;
   conf >> prog;
-  if (prog != "MFloe") { std::cout << MFLOE_WARN << "This seems not to be an input file for MappleFloe!" << std::endl; }
+  if (prog != "MFloe") { std::cout << MFLOE_WARN << "This seems not to be an input file for MapleFloe!" << std::endl; }
   std::string date;
   conf >> date;
   if (date != MFLOE_VERSION) { std::cout << MFLOE_WARN << "The version-date should be " << MFLOE_VERSION << std::endl; }

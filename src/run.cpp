@@ -15,7 +15,7 @@ int main(int argc, char const *argv[]) {
   
   try {
     // Define the command line object
-    TCLAP::CmdLine cmd("MappleFloe Simulation", ' ', "0.0");
+    TCLAP::CmdLine cmd("MapleFloe Simulation", ' ', "0.0");
 
     // Define a value argument and add it to the command line
     TCLAP::UnlabeledValueArg<std::string> inputConfArg("input-conf-file", "Input configuration file", true, "",

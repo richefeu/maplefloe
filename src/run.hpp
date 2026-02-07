@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MappleFloe.hpp"
+#include "MapleFloe.hpp"
 
 #include "toofus/fileTool.hpp"
 

@@ -13,7 +13,7 @@
 #include <functional>
 #include <vector>
 
-#include "MappleFloe.hpp"
+#include "MapleFloe.hpp"
 
 // toofus
 #include "toofus/AABB.hpp"

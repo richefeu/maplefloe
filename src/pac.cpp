@@ -16,7 +16,7 @@ int main(int argc, char const *argv[]) {
   
   try {
     // Define the command line object
-    TCLAP::CmdLine cmd("MappleFloe Packing", ' ', "0.0");
+    TCLAP::CmdLine cmd("MapleFloe Packing", ' ', "0.0");
 
     // Define a value argument and add it to the command line
     TCLAP::UnlabeledValueArg<std::string> inputFileArg("input-file", "Input file", true, "",
