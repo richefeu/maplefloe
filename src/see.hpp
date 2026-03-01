@@ -32,13 +32,14 @@ int main_window;
 // flags
 int show_background     = 1; // not used
 int show_particles      = 1;
-int show_ghosts         = 0;
-int show_period         = 1;
+//int show_ghosts         = 0;
+//int show_period         = 1;
 int show_forces         = 0;
 int show_velocity_field = 0;
 int show_contacts       = 0;
 int showOrientations    = 0;
 int showConnectors      = 1;
+int showBonding         = 1;
 
 // particle coloring
 #define COLOR_NONE 0
@@ -96,14 +97,13 @@ void printInfo();
 void preComputations();
 
 // Drawing functions
-void drawForces();
-void drawContacts();
-void drawBox();
+void drawWorldBox();
+void drawForces(); // to modify
+void drawContacts(); // to modify
 void drawParticles();
-void drawGhosts();
-void drawPeriod();
-void drawConnectorSprings();
-void drawVelocityField();
+void drawConnectorSprings(); // to modify
+void drawBonding(); // to do
+void drawVelocityField(); 
 
 // Callback functions
 void keyboard(unsigned char Key, int x, int y);

@@ -31,7 +31,7 @@ struct FloeElement {
   double zforce{0.0}; // out-of-plane resultant force
   double moment{0.0}; // resultant moment
   
-  int Z{0}; // number of bonds and contacts 
+  int Z{0}; // number of bonds and contacts (TODO rename Nbonds)
 
   FloeElement(); // Ctor
 };

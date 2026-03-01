@@ -1,26 +1,13 @@
 #include "pac.hpp"
 
-int main(int argc, char const *argv[]) {  
-  
-  /*
-  if (argc != 2) {
-    std::cout << "usage: ./pac <pac-command.txt>" << std::endl;
-    return 0;
-  }
-  
-  MFloeAssembler Assemb;
-  Assemb.read(argv[1]);
-  Assemb.run(); 
-  */
-  
-  
+int main(int argc, char const *argv[]) {
+
   try {
     // Define the command line object
     TCLAP::CmdLine cmd("MapleFloe Packing", ' ', "0.0");
 
     // Define a value argument and add it to the command line
-    TCLAP::UnlabeledValueArg<std::string> inputFileArg("input-file", "Input file", true, "",
-                                                       "string");
+    TCLAP::UnlabeledValueArg<std::string> inputFileArg("input-file", "Input file", true, "", "string");
     cmd.add(inputFileArg);
 
     // Parse the command line arguments
@@ -28,11 +15,10 @@ int main(int argc, char const *argv[]) {
 
     // Get the value parsed by each argument
     std::string inputFile = inputFileArg.getValue();
-    
+
     MFloeAssembler Assemb;
     Assemb.read(inputFile.c_str());
     Assemb.run();
-    //Assemb.save();
 
   } catch (TCLAP::ArgException &e) {
     std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;

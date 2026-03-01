@@ -22,6 +22,9 @@
 #define MFLOE_WARN "\033[0m\033[31m\033[1m\033[4mTabaarnack !\033[24m\033[39m\033[0m: "
 #define MFLOE_INFO "\033[0m\033[32m\033[1m\033[4mINFO\033[24m\033[39m\033[0m: "
 
+#define BOLD_ "\033[1m"
+#define NORMAL_ "\033[0m"
+
 class MFloe {
 public:
   std::vector<FloeElement> FloeElements;
@@ -46,6 +49,8 @@ public:
   double activationTime{0.0}; // required contact duration for changing to a healing bonded
   double healingTime{0.0};    // reference duration that tune the healing rate
   double coverage0{0.0};      // healingRatio or healingProgress
+  
+  int NbBondsInit{0}; // a reference initial number of bonds (computed when bonds are activated)
 
   AABB_2D aabb;
 

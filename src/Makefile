@@ -6,7 +6,6 @@ ifeq ($(UNAME_S),Darwin)
   GLLINK = `pkg-config --libs gl glu glut`
 	GLFLAGS = `pkg-config --cflags gl glu glut`
 	# on apple, use brew to install freeglut and mesa-glu
-
 else
   CXX = g++
   CXXFLAGS = -O3 -Wall -std=c++17
@@ -20,14 +19,14 @@ $(shell git clone https://github.com/richefeu/toofus.git > /dev/null 2>&1)
 endif
 
 # The list of source files for the library SPICE
-SOURCES = MapleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp MFloeAssembler.cpp
+SOURCES = MapleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp
 
 # Each cpp file listed below corresponds to an object file
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
 .PHONY: all clean clone_toofus
 
-all: run see
+all: pac run see
 
 clean:
 	@echo "\033[0;32m-> Remove object files\033[0m"
@@ -57,7 +56,7 @@ libMapleFloe.a: $(OBJECTS)
 
 run: run.cpp libMapleFloe.a
 	@echo "\033[0;32m-> BUILDING RUN APPLICATION" $@ "\033[0m"
-	$(CXX) $(CXXFLAGS) -I toofus/toofus-gate -c $< -o run.o
+	$(CXX) $(CXXFLAGS) -c $< -o run.o
 	$(CXX) -o $@ run.o libMapleFloe.a
 
 see: see.cpp libMapleFloe.a
@@ -65,7 +64,8 @@ see: see.cpp libMapleFloe.a
 	$(CXX) $(CXXFLAGS) -c $< -o see.o $(GLFLAGS)
 	$(CXX) -o $@ see.o libMapleFloe.a $(GLLINK)
 
-pac: pac.cpp libMapleFloe.a
+pac: pac.cpp MFloeAssembler.cpp
 	@echo "\033[0;32m-> BUILDING PAC APPLICATION" $@ "\033[0m"
-	$(CXX) $(CXXFLAGS) -I toofus/toofus-gate -c $< -o pac.o $(GLFLAGS)
-	$(CXX) -o $@ pac.o libMapleFloe.a $(GLLINK)
+	$(CXX) $(CXXFLAGS) -c MFloeAssembler.cpp -o MFloeAssembler.o
+	$(CXX) $(CXXFLAGS) -c $< -o pac.o
+	$(CXX) -o $@ pac.o MFloeAssembler.o

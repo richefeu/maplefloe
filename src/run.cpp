@@ -12,7 +12,7 @@
 int main(int argc, char const *argv[]) {
   MFloe simu;
   simu.head();
-  
+
   try {
     // Define the command line object
     TCLAP::CmdLine cmd("MapleFloe Simulation", ' ', "0.0");

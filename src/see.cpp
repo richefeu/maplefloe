@@ -7,26 +7,26 @@ void printHelp() {
   std::cout << "=         fit the view" << std::endl;
   std::cout << "a/A       particle transparency" << std::endl;
   // std::cout << "b/B       ghost particle transparency" << std::endl;
-  std::cout << "c         show/hide periodic cell" << std::endl;
-  std::cout << "C         show/hide contacts" << std::endl;
-  std::cout << "f         show/hide normal forces" << std::endl;
-  std::cout << "g         show/hide ghost particles" << std::endl;
+  //std::cout << "c         show/hide periodic cell" << std::endl;
+  //std::cout << "C         show/hide contacts" << std::endl;
+  //std::cout << "f         show/hide normal forces" << std::endl;
+  //std::cout << "g         show/hide ghost particles" << std::endl;
   std::cout << "h         print this help" << std::endl;
-  std::cout << "i         print information" << std::endl;
-  std::cout << "m         show/hide polar plot" << std::endl;
-  std::cout << "n         go to file (see terminal to enter the file number)" << std::endl;
-  std::cout << "o         show/hide particle orientations" << std::endl;
-  std::cout << "p         show/hide particles" << std::endl;
-  std::cout << "P         switch pipe display" << std::endl;
+  //std::cout << "i         print information" << std::endl;
+  //std::cout << "m         show/hide polar plot" << std::endl;
+  //std::cout << "n         go to file (see terminal to enter the file number)" << std::endl;
+  //std::cout << "o         show/hide particle orientations" << std::endl;
+  //std::cout << "p         show/hide particles" << std::endl;
+  //std::cout << "P         switch pipe display" << std::endl;
   std::cout << "q         quit" << std::endl;
-  std::cout << "s/S       tune vector sizes" << std::endl;
-  std::cout << "w/W       tune displayed ghost width" << std::endl;
-  std::cout << "x         show/hide surrouding material 'spider-map'" << std::endl;
+  //std::cout << "s/S       tune vector sizes" << std::endl;
+  //std::cout << "w/W       tune displayed ghost width" << std::endl;
+  //std::cout << "x         show/hide surrouding material 'spider-map'" << std::endl;
   // std::cout << "x         xxxx" << std::endl;
-  std::cout << std::endl;
-  std::cout << "0         particles colored with light gray" << std::endl;
-  std::cout << "1         particles colored with pressure" << std::endl;
-  std::cout << std::endl;
+  //std::cout << std::endl;
+  //std::cout << "0         particles colored with light gray" << std::endl;
+  //std::cout << "1         particles colored with pressure" << std::endl;
+  //std::cout << std::endl;
 }
 
 void printInfo() {
@@ -106,6 +106,10 @@ void keyboard(unsigned char Key, int /*x*/, int /*y*/) {
     vScale *= 0.95;
     if (vScale < 0.0) vScale = 1.0;
   } break;
+  
+  case 'v': {
+    show_velocity_field = 1 - show_velocity_field;
+  } break;
 
   case '-': {
     if (confNum > 0) { try_to_readConf(confNum - 1, Conf, confNum); }
@@ -127,7 +131,7 @@ void keyboard(unsigned char Key, int /*x*/, int /*y*/) {
 }
 
 void updateTextLine() {
-  textZone.addLine("conf %d,  t %0.4g s", confNum, Conf.t);
+  textZone.addLine("#conf %d,  time %0.4g s", confNum, Conf.t);
 }
 
 void mouse(int button, int state, int x, int y) {
@@ -200,17 +204,10 @@ void display() {
   glLoadIdentity();
 
   if (show_particles == 1) { drawParticles(); }
-  //if (show_ghosts == 1) { drawGhosts(); }
-  //if (showConnectors == 1) { drawConnectorSprings(); }
-  if (show_contacts == 1) { drawContacts(); }
-  if (show_forces == 1) { drawForces(); }
   if (show_velocity_field == 1) { drawVelocityField(); }
-  //if (show_period == 1) { drawPeriod(); }
+  if (showBonding == 1) {drawBonding();}
 
   if (particle_color_option > COLOR_NONE) { colorBar.show(width, height, colorTable); }
-
-  // profile devel
-  //if (show_profile == 1) { selectProfileToDraw(); }
 
   textZone.draw();
 
@@ -417,10 +414,24 @@ void setColor(int i, GLfloat alpha) {
   glColor4f(col.r / 255.0, col.g / 255.0, col.b / 255.0, alpha);
 }
 
+void drawWorldBox() {
+  glLineWidth(1.0f);
+  glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+ 
+  glBegin(GL_LINE_LOOP);
+  glVertex2f(Conf.aabb.min.x, Conf.aabb.min.y);
+  glVertex2f(Conf.aabb.max.x, Conf.aabb.min.y);
+  glVertex2f(Conf.aabb.max.x, Conf.aabb.max.y);
+  glVertex2f(Conf.aabb.min.x, Conf.aabb.max.y);
+  glEnd();  
+}
 
 
 void drawParticles() {
-  if (mouse_mode != NOTHING) { return; }
+  if (mouse_mode != NOTHING) { 
+    drawWorldBox();
+    return; 
+  }
 
   glLineWidth(1.0f);
 
@@ -486,6 +497,50 @@ void drawVelocityField() {
     glVertex2f(posHead.x + headSize * (-n.x - t.x), posHead.y + headSize * (-n.y - t.y));
     glEnd();
   }
+}
+
+void drawBonding() {
+  if (mouse_mode != NOTHING) { return; }
+  
+  glLineWidth(1.5f);
+
+  // il faudra une gradient de couleur du blanc au bleu foncé
+  // pour le coverage
+
+  glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+  glBegin(GL_LINES);
+  
+  for (size_t k = 0; k < Conf.Interactions.size(); ++k) {
+    size_t i   = Conf.Interactions[k].i;
+    size_t j   = Conf.Interactions[k].j;
+    vec2r posi = Conf.FloeElements[i].pos;
+    vec2r posj = Conf.FloeElements[j].pos;
+    double Di = Conf.FloeElements[i].radius + 0.5*Conf.Interactions[k].dn0;
+    double Dj = Conf.FloeElements[j].radius + 0.5*Conf.Interactions[k].dn0;
+    double hij = 0.5*(Conf.FloeElements[i].height + Conf.FloeElements[j].height); 
+    double half_lij = 0.5 * Conf.Interactions[k].A / hij;
+    
+    vec2r nij  = posj - posi;
+    nij.normalize();
+    vec2r tij(-nij.y, nij.x);
+    
+    vec2r ci1 = posi + Di * nij - half_lij * tij;
+    vec2r ci2 = posi + Di * nij + half_lij * tij;
+    glVertex2f(ci1.x, ci1.y);
+    glVertex2f(ci2.x, ci2.y);
+    
+    vec2r cj1 = posj - Dj * nij - half_lij * tij;
+    vec2r cj2 = posj - Dj * nij + half_lij * tij;
+    glVertex2f(cj1.x, cj1.y);
+    glVertex2f(cj2.x, cj2.y);
+    
+    //glVertex2f(posi.x, posi.y);
+    //glVertex2f(posj.x, posj.y);
+  }
+  glEnd();
+  
+  
+  
 }
 
 void drawContacts() {
