@@ -32,14 +32,12 @@ int main_window;
 // flags
 int show_background     = 1; // not used
 int show_particles      = 1;
-//int show_ghosts         = 0;
-//int show_period         = 1;
 int show_forces         = 0;
 int show_velocity_field = 0;
 int show_contacts       = 0;
 int showOrientations    = 0;
-int showConnectors      = 1;
-int showBonding         = 1;
+//int showConnectors      = 1;
+int showBonding         = 0;
 
 // particle coloring
 #define COLOR_NONE 0
@@ -62,6 +60,7 @@ void setColor(int i, GLfloat alpha); // this will set a color depending on the s
 GLfloat alpha_particles = 1.0f;
 
 // profiles
+/*
 #define PROFILE_RADIUS 0
 #define PROFILE_VELOCITY_X 1
 int show_profile = 1;
@@ -69,6 +68,7 @@ int profile_option{PROFILE_VELOCITY_X};
 std::string profile_title{"Velocity X"};
 void plotProfile(std::vector<double> &prof, std::vector<double> &var);
 void selectProfileToDraw();
+*/
 
 // vectors
 double arrowSize  = 0.0005;

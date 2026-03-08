@@ -1,6 +1,11 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
+#include <functional>
+
+#include "FloeElement.hpp"
+class MFloe;
 
 struct Interaction {
   size_t i{0};
@@ -28,4 +33,7 @@ struct Interaction {
   Interaction(size_t I, size_t J);
 
   void copy(Interaction &I);
+  void computeBondedArea(double h_i, double radius_i, int Z_i, double h_j, double radius_j, int Z_j);
+
+  static std::function<double(Interaction &, MFloe &)> ruptureCriterion[3];
 };

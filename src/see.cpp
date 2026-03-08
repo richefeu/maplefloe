@@ -7,26 +7,26 @@ void printHelp() {
   std::cout << "=         fit the view" << std::endl;
   std::cout << "a/A       particle transparency" << std::endl;
   // std::cout << "b/B       ghost particle transparency" << std::endl;
-  //std::cout << "c         show/hide periodic cell" << std::endl;
-  //std::cout << "C         show/hide contacts" << std::endl;
-  //std::cout << "f         show/hide normal forces" << std::endl;
-  //std::cout << "g         show/hide ghost particles" << std::endl;
+  // std::cout << "c         show/hide periodic cell" << std::endl;
+  // std::cout << "C         show/hide contacts" << std::endl;
+  // std::cout << "f         show/hide normal forces" << std::endl;
+  // std::cout << "g         show/hide ghost particles" << std::endl;
   std::cout << "h         print this help" << std::endl;
-  //std::cout << "i         print information" << std::endl;
-  //std::cout << "m         show/hide polar plot" << std::endl;
-  //std::cout << "n         go to file (see terminal to enter the file number)" << std::endl;
-  //std::cout << "o         show/hide particle orientations" << std::endl;
-  //std::cout << "p         show/hide particles" << std::endl;
-  //std::cout << "P         switch pipe display" << std::endl;
+  // std::cout << "i         print information" << std::endl;
+  // std::cout << "m         show/hide polar plot" << std::endl;
+  // std::cout << "n         go to file (see terminal to enter the file number)" << std::endl;
+  // std::cout << "o         show/hide particle orientations" << std::endl;
+  // std::cout << "p         show/hide particles" << std::endl;
+  // std::cout << "P         switch pipe display" << std::endl;
   std::cout << "q         quit" << std::endl;
-  //std::cout << "s/S       tune vector sizes" << std::endl;
-  //std::cout << "w/W       tune displayed ghost width" << std::endl;
-  //std::cout << "x         show/hide surrouding material 'spider-map'" << std::endl;
-  // std::cout << "x         xxxx" << std::endl;
-  //std::cout << std::endl;
-  //std::cout << "0         particles colored with light gray" << std::endl;
-  //std::cout << "1         particles colored with pressure" << std::endl;
-  //std::cout << std::endl;
+  // std::cout << "s/S       tune vector sizes" << std::endl;
+  // std::cout << "w/W       tune displayed ghost width" << std::endl;
+  // std::cout << "x         show/hide surrouding material 'spider-map'" << std::endl;
+  //  std::cout << "x         xxxx" << std::endl;
+  // std::cout << std::endl;
+  // std::cout << "0         particles colored with light gray" << std::endl;
+  // std::cout << "1         particles colored with pressure" << std::endl;
+  // std::cout << std::endl;
 }
 
 void printInfo() {
@@ -62,7 +62,11 @@ void keyboard(unsigned char Key, int /*x*/, int /*y*/) {
   case 'b': {
     show_background = 1 - show_background;
   } break;
-
+  
+  case 'B': {
+    showBonding = 1 - showBonding;
+  } break;
+  
   case 'c': {
     show_contacts = 1 - show_contacts;
   } break;
@@ -106,7 +110,7 @@ void keyboard(unsigned char Key, int /*x*/, int /*y*/) {
     vScale *= 0.95;
     if (vScale < 0.0) vScale = 1.0;
   } break;
-  
+
   case 'v': {
     show_velocity_field = 1 - show_velocity_field;
   } break;
@@ -196,16 +200,19 @@ void motion(int x, int y) {
 }
 
 void display() {
-  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   //glTools::clearBackground((bool)show_background);
+  
+  glTools::clearBackground(true);
+  
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
   if (show_particles == 1) { drawParticles(); }
   if (show_velocity_field == 1) { drawVelocityField(); }
-  if (showBonding == 1) {drawBonding();}
+  if (showBonding == 1) { drawBonding(); }
 
   if (particle_color_option > COLOR_NONE) { colorBar.show(width, height, colorTable); }
 
@@ -273,7 +280,6 @@ void reshape(int w, int h) {
   glutPostRedisplay();
 }
 
-
 // set and compute the colors of particles
 void setColorOption(int option) {
   particle_color_option = option;
@@ -303,99 +309,99 @@ void setColorOption(int option) {
     colorBar.setTitle("Vel. Mag.");
   } break;
 
-  /*
-  case COLOR_NORMAL_STIFFNESS: {
-    double normalStiffnessMin = Conf.Particles[0].normalStiffness;
-    double normalStiffnessMax = normalStiffnessMin;
-    for (size_t i = 0; i < Conf.Particles.size(); ++i) {
-      double normalStiffness = Conf.Particles[i].normalStiffness;
-      color_values[i]        = normalStiffness;
-      if (normalStiffness < normalStiffnessMin) { normalStiffnessMin = normalStiffness; }
-      if (normalStiffness > normalStiffnessMax) { normalStiffnessMax = normalStiffness; }
-    }
-    colorTable.setMinMax(normalStiffnessMin, normalStiffnessMax);
-    colorBar.setTitle("Normal stiffness");
-  } break;
+    /*
+    case COLOR_NORMAL_STIFFNESS: {
+      double normalStiffnessMin = Conf.Particles[0].normalStiffness;
+      double normalStiffnessMax = normalStiffnessMin;
+      for (size_t i = 0; i < Conf.Particles.size(); ++i) {
+        double normalStiffness = Conf.Particles[i].normalStiffness;
+        color_values[i]        = normalStiffness;
+        if (normalStiffness < normalStiffnessMin) { normalStiffnessMin = normalStiffness; }
+        if (normalStiffness > normalStiffnessMax) { normalStiffnessMax = normalStiffness; }
+      }
+      colorTable.setMinMax(normalStiffnessMin, normalStiffnessMax);
+      colorBar.setTitle("Normal stiffness");
+    } break;
 
-  case COLOR_TANGENTIAL_STIFFNESS: {
-    double tangentialStiffnessMin = Conf.Particles[0].tangentialStiffness;
-    double tangentialStiffnessMax = tangentialStiffnessMin;
-    for (size_t i = 0; i < Conf.Particles.size(); ++i) {
-      double tangentialStiffness = Conf.Particles[i].tangentialStiffness;
-      color_values[i]            = tangentialStiffness;
-      if (tangentialStiffness < tangentialStiffnessMin) { tangentialStiffnessMin = tangentialStiffness; }
-      if (tangentialStiffness > tangentialStiffnessMax) { tangentialStiffnessMax = tangentialStiffness; }
-    }
-    colorTable.setMinMax(tangentialStiffnessMin, tangentialStiffnessMax);
-    colorBar.setTitle("Tangential stiffness");
-  } break;
+    case COLOR_TANGENTIAL_STIFFNESS: {
+      double tangentialStiffnessMin = Conf.Particles[0].tangentialStiffness;
+      double tangentialStiffnessMax = tangentialStiffnessMin;
+      for (size_t i = 0; i < Conf.Particles.size(); ++i) {
+        double tangentialStiffness = Conf.Particles[i].tangentialStiffness;
+        color_values[i]            = tangentialStiffness;
+        if (tangentialStiffness < tangentialStiffnessMin) { tangentialStiffnessMin = tangentialStiffness; }
+        if (tangentialStiffness > tangentialStiffnessMax) { tangentialStiffnessMax = tangentialStiffness; }
+      }
+      colorTable.setMinMax(tangentialStiffnessMin, tangentialStiffnessMax);
+      colorBar.setTitle("Tangential stiffness");
+    } break;
 
-  case COLOR_NORMAL_VISC_DAMPING_RATE: {
-    double normalViscDampingRateMin = Conf.Particles[0].normalViscDampingRate;
-    double normalViscDampingRateMax = normalViscDampingRateMin;
-    for (size_t i = 0; i < Conf.Particles.size(); ++i) {
-      double normalViscDampingRate = Conf.Particles[i].normalViscDampingRate;
-      color_values[i]              = normalViscDampingRate;
-      if (normalViscDampingRate < normalViscDampingRateMin) { normalViscDampingRateMin = normalViscDampingRate; }
-      if (normalViscDampingRate > normalViscDampingRateMax) { normalViscDampingRateMax = normalViscDampingRate; }
-    }
-    colorTable.setMinMax(normalViscDampingRateMin, normalViscDampingRateMax);
-    colorBar.setTitle("Normal viscous damping rate");
-  } break;
+    case COLOR_NORMAL_VISC_DAMPING_RATE: {
+      double normalViscDampingRateMin = Conf.Particles[0].normalViscDampingRate;
+      double normalViscDampingRateMax = normalViscDampingRateMin;
+      for (size_t i = 0; i < Conf.Particles.size(); ++i) {
+        double normalViscDampingRate = Conf.Particles[i].normalViscDampingRate;
+        color_values[i]              = normalViscDampingRate;
+        if (normalViscDampingRate < normalViscDampingRateMin) { normalViscDampingRateMin = normalViscDampingRate; }
+        if (normalViscDampingRate > normalViscDampingRateMax) { normalViscDampingRateMax = normalViscDampingRate; }
+      }
+      colorTable.setMinMax(normalViscDampingRateMin, normalViscDampingRateMax);
+      colorBar.setTitle("Normal viscous damping rate");
+    } break;
 
-  case COLOR_FRICTION_COEFFICIENT: {
-    double frictionMin = Conf.Particles[0].friction;
-    double frictionMax = frictionMin;
-    for (size_t i = 0; i < Conf.Particles.size(); ++i) {
-      double friction = Conf.Particles[i].friction;
-      color_values[i] = friction;
-      if (friction < frictionMin) { frictionMin = friction; }
-      if (friction > frictionMax) { frictionMax = friction; }
-    }
-    colorTable.setMinMax(frictionMin, frictionMax);
-    colorBar.setTitle("Friction");
-  } break;
+    case COLOR_FRICTION_COEFFICIENT: {
+      double frictionMin = Conf.Particles[0].friction;
+      double frictionMax = frictionMin;
+      for (size_t i = 0; i < Conf.Particles.size(); ++i) {
+        double friction = Conf.Particles[i].friction;
+        color_values[i] = friction;
+        if (friction < frictionMin) { frictionMin = friction; }
+        if (friction > frictionMax) { frictionMax = friction; }
+      }
+      colorTable.setMinMax(frictionMin, frictionMax);
+      colorBar.setTitle("Friction");
+    } break;
 
-  case COLOR_ROLLING_FRICTION: {
-    double rollingFrictionMin = Conf.Particles[0].rollingFriction;
-    double rollingFrictionMax = rollingFrictionMin;
-    for (size_t i = 0; i < Conf.Particles.size(); ++i) {
-      double rollingFriction = Conf.Particles[i].rollingFriction;
-      color_values[i]        = rollingFriction;
-      if (rollingFriction < rollingFrictionMin) { rollingFrictionMin = rollingFriction; }
-      if (rollingFriction > rollingFrictionMax) { rollingFrictionMax = rollingFriction; }
-    }
-    colorTable.setMinMax(rollingFrictionMin, rollingFrictionMax);
-    colorBar.setTitle("Rolling friction");
-  } break;
+    case COLOR_ROLLING_FRICTION: {
+      double rollingFrictionMin = Conf.Particles[0].rollingFriction;
+      double rollingFrictionMax = rollingFrictionMin;
+      for (size_t i = 0; i < Conf.Particles.size(); ++i) {
+        double rollingFriction = Conf.Particles[i].rollingFriction;
+        color_values[i]        = rollingFriction;
+        if (rollingFriction < rollingFrictionMin) { rollingFrictionMin = rollingFriction; }
+        if (rollingFriction > rollingFrictionMax) { rollingFrictionMax = rollingFriction; }
+      }
+      colorTable.setMinMax(rollingFrictionMin, rollingFrictionMax);
+      colorBar.setTitle("Rolling friction");
+    } break;
 
-  case COLOR_ADHESION: {
-    double adhesionMin = Conf.Particles[0].adhesion;
-    double adhesionMax = adhesionMin;
-    for (size_t i = 0; i < Conf.Particles.size(); ++i) {
-      double adhesion = Conf.Particles[i].adhesion;
-      color_values[i] = adhesion;
-      if (adhesion < adhesionMin) { adhesionMin = adhesion; }
-      if (adhesion > adhesionMax) { adhesionMax = adhesion; }
-    }
-    colorTable.setMinMax(adhesionMin, adhesionMax);
-    colorBar.setTitle("Adhesion");
-  } break;
+    case COLOR_ADHESION: {
+      double adhesionMin = Conf.Particles[0].adhesion;
+      double adhesionMax = adhesionMin;
+      for (size_t i = 0; i < Conf.Particles.size(); ++i) {
+        double adhesion = Conf.Particles[i].adhesion;
+        color_values[i] = adhesion;
+        if (adhesion < adhesionMin) { adhesionMin = adhesion; }
+        if (adhesion > adhesionMax) { adhesionMax = adhesion; }
+      }
+      colorTable.setMinMax(adhesionMin, adhesionMax);
+      colorBar.setTitle("Adhesion");
+    } break;
 
-  case COLOR_GC_GLUE: {
-    double GcGlueMin = Conf.Particles[0].GcGlue;
-    double GcGlueMax = GcGlueMin;
-    for (size_t i = 0; i < Conf.Particles.size(); ++i) {
-      double GcGlue   = Conf.Particles[i].GcGlue;
-      color_values[i] = GcGlue;
-      if (GcGlue < GcGlueMin) { GcGlueMin = GcGlue; }
-      if (GcGlue > GcGlueMax) { GcGlueMax = GcGlue; }
-    }
-    colorTable.setMinMax(GcGlueMin, GcGlueMax);
-    colorBar.setTitle("Gc glue");
-  } break;
-*/
-  
+    case COLOR_GC_GLUE: {
+      double GcGlueMin = Conf.Particles[0].GcGlue;
+      double GcGlueMax = GcGlueMin;
+      for (size_t i = 0; i < Conf.Particles.size(); ++i) {
+        double GcGlue   = Conf.Particles[i].GcGlue;
+        color_values[i] = GcGlue;
+        if (GcGlue < GcGlueMin) { GcGlueMin = GcGlue; }
+        if (GcGlue > GcGlueMax) { GcGlueMax = GcGlue; }
+      }
+      colorTable.setMinMax(GcGlueMin, GcGlueMax);
+      colorBar.setTitle("Gc glue");
+    } break;
+  */
+
   default:
     break;
   }
@@ -417,20 +423,19 @@ void setColor(int i, GLfloat alpha) {
 void drawWorldBox() {
   glLineWidth(1.0f);
   glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
- 
+
   glBegin(GL_LINE_LOOP);
   glVertex2f(Conf.aabb.min.x, Conf.aabb.min.y);
   glVertex2f(Conf.aabb.max.x, Conf.aabb.min.y);
   glVertex2f(Conf.aabb.max.x, Conf.aabb.max.y);
   glVertex2f(Conf.aabb.min.x, Conf.aabb.max.y);
-  glEnd();  
+  glEnd();
 }
 
-
 void drawParticles() {
-  if (mouse_mode != NOTHING) { 
+  if (mouse_mode != NOTHING) {
     drawWorldBox();
-    return; 
+    return;
   }
 
   glLineWidth(1.0f);
@@ -501,7 +506,7 @@ void drawVelocityField() {
 
 void drawBonding() {
   if (mouse_mode != NOTHING) { return; }
-  
+
   glLineWidth(1.5f);
 
   // il faudra une gradient de couleur du blanc au bleu foncé
@@ -509,38 +514,35 @@ void drawBonding() {
 
   glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
   glBegin(GL_LINES);
-  
+
   for (size_t k = 0; k < Conf.Interactions.size(); ++k) {
-    size_t i   = Conf.Interactions[k].i;
-    size_t j   = Conf.Interactions[k].j;
-    vec2r posi = Conf.FloeElements[i].pos;
-    vec2r posj = Conf.FloeElements[j].pos;
-    double Di = Conf.FloeElements[i].radius + 0.5*Conf.Interactions[k].dn0;
-    double Dj = Conf.FloeElements[j].radius + 0.5*Conf.Interactions[k].dn0;
-    double hij = 0.5*(Conf.FloeElements[i].height + Conf.FloeElements[j].height); 
+    size_t i        = Conf.Interactions[k].i;
+    size_t j        = Conf.Interactions[k].j;
+    vec2r posi      = Conf.FloeElements[i].pos;
+    vec2r posj      = Conf.FloeElements[j].pos;
+    double Di       = Conf.FloeElements[i].radius + 0.5 * Conf.Interactions[k].dn0;
+    double Dj       = Conf.FloeElements[j].radius + 0.5 * Conf.Interactions[k].dn0;
+    double hij      = 0.5 * (Conf.FloeElements[i].height + Conf.FloeElements[j].height);
     double half_lij = 0.5 * Conf.Interactions[k].A / hij;
-    
-    vec2r nij  = posj - posi;
+
+    vec2r nij = posj - posi;
     nij.normalize();
     vec2r tij(-nij.y, nij.x);
-    
+
     vec2r ci1 = posi + Di * nij - half_lij * tij;
     vec2r ci2 = posi + Di * nij + half_lij * tij;
     glVertex2f(ci1.x, ci1.y);
     glVertex2f(ci2.x, ci2.y);
-    
+
     vec2r cj1 = posj - Dj * nij - half_lij * tij;
     vec2r cj2 = posj - Dj * nij + half_lij * tij;
     glVertex2f(cj1.x, cj1.y);
     glVertex2f(cj2.x, cj2.y);
-    
-    //glVertex2f(posi.x, posi.y);
-    //glVertex2f(posj.x, posj.y);
+
+    // glVertex2f(posi.x, posi.y);
+    // glVertex2f(posj.x, posj.y);
   }
   glEnd();
-  
-  
-  
 }
 
 void drawContacts() {
@@ -554,7 +556,7 @@ void drawContacts() {
   // grain-grain
   glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
   glBegin(GL_LINES);
-  for (size_t k = 0; k < Conf.Interactions.size(); ++k) {
+  for (size_t k = 0; k < Conf.Interactions.size(); ++k) { 
     size_t i   = Conf.Interactions[k].i;
     size_t j   = Conf.Interactions[k].j;
     vec2r posi = Conf.FloeElements[i].pos;
@@ -679,7 +681,7 @@ void menu(int num) {
   case 10: {
     show_particles = 1 - show_particles;
   } break;
-  
+
   case 13: {
     show_forces = 1 - show_forces;
   } break;
@@ -689,7 +691,7 @@ void menu(int num) {
   case 15: {
     showOrientations = 1 - showOrientations;
   } break;
-  
+
   case 17: {
     show_velocity_field = 1 - show_velocity_field;
   } break;
@@ -704,7 +706,7 @@ void menu(int num) {
   case 42: {
     setColorOption(COLOR_VELOCITY_MAGNITUDE);
   } break;
-  
+
   // submenu70
   case 70: {
     double Z     = 0.0;
@@ -721,8 +723,8 @@ void menu(int num) {
     textZone.addLine("Z = %.4f, Zprox = %.4f", Z, Zprox);
   } break;
 
-  // submenu100
-  // ...
+    // submenu100
+    // ...
 
   }; // end switch
 
@@ -732,39 +734,39 @@ void menu(int num) {
 void buildMenu() {
   int submenu10 = glutCreateMenu(menu);
   glutAddMenuEntry("Show particles", 10);
-  //glutAddMenuEntry("Show ghost-particles", 11);
-  //glutAddMenuEntry("Show period", 12);
+  // glutAddMenuEntry("Show ghost-particles", 11);
+  // glutAddMenuEntry("Show period", 12);
   glutAddMenuEntry("Show forces", 13);
   glutAddMenuEntry("Show contacts", 14);
   glutAddMenuEntry("Show orientations", 15);
-  //glutAddMenuEntry("Show connectors", 16);
+  // glutAddMenuEntry("Show connectors", 16);
   glutAddMenuEntry("Show velocity field", 17);
 
   int submenu40 = glutCreateMenu(menu);
   glutAddMenuEntry("None", 40);
   glutAddMenuEntry("Radius", 41);
   glutAddMenuEntry("Velocity Magnitude", 42);
-  //glutAddMenuEntry("Normal stiffness", 43);
-  //glutAddMenuEntry("Tangential stiffness", 44);
-  //glutAddMenuEntry("Normal viscous damping rate", 45);
-  //glutAddMenuEntry("Friction coefficient", 46);
-  //glutAddMenuEntry("Rolling friction", 47);
-  //glutAddMenuEntry("Adhesion", 48);
-  //glutAddMenuEntry("Gc glue", 49);
+  // glutAddMenuEntry("Normal stiffness", 43);
+  // glutAddMenuEntry("Tangential stiffness", 44);
+  // glutAddMenuEntry("Normal viscous damping rate", 45);
+  // glutAddMenuEntry("Friction coefficient", 46);
+  // glutAddMenuEntry("Rolling friction", 47);
+  // glutAddMenuEntry("Adhesion", 48);
+  // glutAddMenuEntry("Gc glue", 49);
 
   int submenu70 = glutCreateMenu(menu);
   glutAddMenuEntry("Connectivity", 70);
 
-  //int submenu100 = glutCreateMenu(menu);
-  //glutAddMenuEntry("None", 100);
-  //glutAddMenuEntry("Radius", 101);
-  //glutAddMenuEntry("Velocity X", 102);
+  // int submenu100 = glutCreateMenu(menu);
+  // glutAddMenuEntry("None", 100);
+  // glutAddMenuEntry("Radius", 101);
+  // glutAddMenuEntry("Velocity X", 102);
 
   glutCreateMenu(menu); // Main menu
   glutAddSubMenu("Display options", submenu10);
   glutAddSubMenu("Color particles", submenu40);
   glutAddSubMenu("Extract data", submenu70);
-  //glutAddSubMenu("Profiles", submenu100);
+  // glutAddSubMenu("Profiles", submenu100);
   glutAddMenuEntry("Quit", 0);
   glutAddMenuEntry("Update the list of neighbors", 1);
   glutAddMenuEntry("Clean the list of neighbors", 2);

@@ -8,19 +8,22 @@ MFloe::MFloe() {}
 // Print header
 // ---------------------------------------------------------
 void MFloe::head() {
-  std::cout << '\n';
-  std::cout << "⠀⠀⠀⠀⠀⠀⠀⣶⣄⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀" << std::endl;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣴⣿⡄⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀" << std::endl;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠰⣶⣾⣿⣿⣿⣿⣿⡇⠀⢠⣷⣤⣶⣿⡇⠀⠀⠀MapleFloe - " << MFLOE_VERSION << std::endl;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣀⣿⣿⣿⣿⣿⣧⣀⠀⠀Université Grenoble Alpes" << std::endl;
+  std::cout << std::endl << termcolor::bright_white << termcolor::on_blue;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⣶⣄⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  " << std::endl;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣴⣿⡄⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀ " << std::endl;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠰⣶⣾⣿⣿⣿⣿⣿⡇⠀⢠⣷⣤⣶⣿⡇⠀⠀⠀" << termcolor::reset << " MapleFloe - " << termcolor::yellow << MFLOE_VERSION
+            << termcolor::reset << std::endl;
+  std::cout << termcolor::bright_white << termcolor::on_blue;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣀⣿⣿⣿⣿⣿⣧⣀⠀⠀" << termcolor::reset << " Université Grenoble Alpes" << std::endl;
+  std::cout << termcolor::bright_white << termcolor::on_blue;
   std::cout << "⠀⠀⠀⠀⠀⣷⣦⣀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀" << std::endl;
   std::cout << "⠀⠀⢲⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠚⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠂⠀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⠉⠙⢻⣿⣿⡿⠛⠉⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠋⠁⠀⠀⠀⠸⡄⠀⠀⠀⠀⠀⠀⠀⠀" << std::endl;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀     " << std::endl;
-  std::cout << std::endl;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀    " << std::endl;
+  std::cout << termcolor::reset << std::endl;
 }
 
 // ---------------------------------------------------------
@@ -57,6 +60,16 @@ void MFloe::saveConf(const char *name) {
   conf << "kt " << kt << std::endl;
   conf << "mu " << mu << std::endl;
   conf << "Gc " << Gc << std::endl;
+  conf << "GcComprRatio " << GcComprRatio << std::endl;
+
+  conf << "yieldModel ";
+  if (yieldSurfaceModel == YIELD_PARABOLA) {
+    conf << "PARABOLA" << std::endl;
+  } else if (yieldSurfaceModel == YIELD_ELLIPSE) {
+    conf << "ELLIPSE" << std::endl;
+  } else if (yieldSurfaceModel == YIELD_ELLIPSE_ASYM) {
+    conf << "ELLIPSE_ASYM" << std::endl;
+  }
 
   if (!Drivings.empty()) {
     conf << "nDriven " << Drivings.size() << std::endl;
@@ -155,6 +168,20 @@ void MFloe::loadConf(const char *name) {
       conf >> mu;
     } else if (token == "Gc") {
       conf >> Gc;
+    } else if (token == "GcComprRatio") {
+      conf >> GcComprRatio;
+    } else if (token == "yieldModel") {
+      std::string model;
+      conf >> model;
+      if (model == "PARABOLA") {
+        yieldSurfaceModel = YIELD_PARABOLA;
+      } else if (model == "ELLIPSE") {
+        yieldSurfaceModel = YIELD_ELLIPSE;
+      } else if (model == "ELLIPSE_ASYM") {
+        yieldSurfaceModel = YIELD_ELLIPSE_ASYM;
+      } else {
+        std::cout << MFLOE_WARN << "Unkown yielding model '" << model << "'" << std::endl;
+      }
     } else if (token == "activationTime") {
       conf >> activationTime;
     } else if (token == "healingTime") {
@@ -177,7 +204,7 @@ void MFloe::loadConf(const char *name) {
     } else if (token == "FloeElements") {
       size_t nb;
       conf >> nb;
-      //FloeElements.clear();
+      FloeElements.clear();
       FloeElement P;
       for (size_t i = 0; i < nb; i++) {
         conf >> P.pos >> P.zpos >> P.vel >> P.zvel >> P.acc >> P.zacc >> P.rot >> P.vrot >> P.arot >> P.radius >>
@@ -193,7 +220,7 @@ void MFloe::loadConf(const char *name) {
       FloeElement P;
       std::string filename;
       conf >> filename >> P.height >> P.inertia >> P.mass;
-      
+
       std::ifstream xyrFile(filename);
       while (xyrFile.good()) {
         xyrFile >> P.pos >> P.radius;
@@ -321,6 +348,12 @@ void MFloe::activateBonds(double dmax) {
     size_t i = Interactions[k].i;
     size_t j = Interactions[k].j;
 
+    // clang-format off
+    Interactions[k].computeBondedArea(FloeElements[i].height, FloeElements[i].radius, FloeElements[i].Z,
+                                      FloeElements[j].height, FloeElements[j].radius, FloeElements[j].Z);
+    // clang-format on
+
+    /*
     double h = std::min(FloeElements[i].height, FloeElements[j].height);
 
     double li = 2.0 * FloeElements[i].radius;
@@ -330,6 +363,7 @@ void MFloe::activateBonds(double dmax) {
     double l = std::min(li, lj);
 
     Interactions[k].A = h * l;
+    */
   }
 }
 
@@ -368,13 +402,13 @@ void MFloe::screenLog() {
   // clang-format off
   std::cout << std::endl;
   std::cout << "————————————————————————————————————————————————————————————————" << std::endl;
-  std::cout << " iconf = " << BOLD_ << iconf << NORMAL_ << " / " << iconfMaxEstimated 
+  std::cout << " iconf = " << BOLD_ << iconf << NORMAL_ << " / " << iconfMaxEstimated << " (estimated)"
             << ", time = " << std::setprecision(10) << BOLD_ << t << NORMAL_
             << std::endl;
-  std::cout << " #bonds = " << BOLD_ << NbBondsCurrent << NORMAL_ << " / " << NbBondsInit 
-            << ", coverage = " 
+  std::cout << " #bonds = " << BOLD_ << NbBondsCurrent << NORMAL_ << " / #bonds_init = " << NbBondsInit << std::endl; 
+  std::cout << " total coverage = " 
             << std::setprecision(5) << BOLD_ << HealingAreaCovered * 100 << NORMAL_
-            << std::setprecision(10) << " of healing area " << BOLD_ << HealingArea << NORMAL_ << std::endl;
+            << std::setprecision(10) << " of total healing area " << BOLD_ << HealingArea << NORMAL_ << std::endl;
   std::cout << " #currently healing bonds = " << BOLD_ << NbHealingCurrent << NORMAL_ << std::endl;
   std::cout << " Ktrans = " << BOLD_ << Ktrans << NORMAL_ 
             << ", Krot = " << BOLD_ << Krot << NORMAL_ << std::endl;
@@ -447,7 +481,7 @@ void MFloe::integrate() {
   ++iconf;
   interHistC = 0.0;
 
-  std::cout << MFLOE_INFO << "Beginning iterations" << std::endl;
+  std::cout << termcolor::green << "Beginning iterations" << termcolor::reset << std::endl;
   while (t < tmax) {
 
     for (size_t i = 0; i < nDriven; ++i) {
@@ -478,6 +512,8 @@ void MFloe::integrate() {
       FloeElements[i].zvel += dt_2 * FloeElements[i].zacc;
       FloeElements[i].vrot += dt_2 * FloeElements[i].arot;
     }
+
+    // horizontal viscuous drag forces
 
     t += dt;
 
@@ -512,6 +548,8 @@ void MFloe::integrate() {
       interHistC = 0.0;
     }
   }
+
+  std::cout << termcolor::green << "All steps done" << termcolor::reset << std::endl;
 
   return;
 }
@@ -586,18 +624,13 @@ void MFloe::computeForcesAndMoments() {
       //  BREAKAGE OF ICE-BONDS
       //  ===================================
 
-      double fcn  = sqrt(2.0 * Interactions[k].coverage * Interactions[k].A * kn * Gc);
-      double fct2 = 2.0 * Interactions[k].coverage * Interactions[k].A * kt * Gc;
-
-      // clang-format off
-      double crit = - Interactions[k].fnb / fcn
-                    + (Interactions[k].ftb * Interactions[k].ftb 
-                     + Interactions[k].fsb * Interactions[k].fsb) / fct2 - 1.0;
-      // clang-format on
+      double crit = Interaction::ruptureCriterion[yieldSurfaceModel](Interactions[k], *this);
 
       if (crit >= 0.0) {
         Interactions[k].isBonded = false;
         Interactions[k].t0       = -1.0;
+        Interactions[k].dn0      = 0.0; // no more used
+        Interactions[k].coverage = 0.0; // another way to say the surface is cancelled
 
         // cancel the bonding forces
         Interactions[k].fnb = 0.0;
@@ -622,19 +655,20 @@ void MFloe::computeForcesAndMoments() {
           FloeElements[j].Z = 0;
         }
       }
-
     }
     // ===================================
     // NON-BONDED CONTACT
     // ===================================
     else if (dn < 0.0) { // it means that i and j are in contact (but not bonded)
 
-      if (Interactions[k].t0 == -1.0) { // this means that the contact is 'new'
+      if (Interactions[k].t0 == -1.0) { // this means that the contact is 'new',
+                                        // and we start to measure the time the contact is held
         Interactions[k].t0 = t;
       } else if (Interactions[k].t0 > 0.0 && (t - Interactions[k].t0) > activationTime) {
+        // Here healing starts
         Interactions[k].isBonded = true;
-        FloeElements[Interactions[k].i].Z += 1;
-        FloeElements[Interactions[k].j].Z += 1;
+        FloeElements[i].Z += 1;
+        FloeElements[j].Z += 1;
         Interactions[k].coverage = coverage0;
         Interactions[k].fnb      = 0.0;
         Interactions[k].ftb      = 0.0;
@@ -644,6 +678,8 @@ void MFloe::computeForcesAndMoments() {
         Interactions[k].fs       = 0.0;
         Interactions[k].t0       = t; // now t0 represents the beginning of healing
         Interactions[k].dn0      = dn;
+        Interactions[k].computeBondedArea(FloeElements[i].height, FloeElements[i].radius, FloeElements[i].Z,
+                                          FloeElements[j].height, FloeElements[j].radius, FloeElements[j].Z);
 
         // proceed to next interaction k
         // (next time-step this interaction will be bonded with initial coverage)

@@ -16,14 +16,19 @@
 
 #include "toofus/AABB_2D.hpp"
 #include "toofus/mat4.hpp"
+#include "toofus/toofus-gate/termcolor/termcolor.hpp"
 #include "toofus/vec2.hpp"
 
 #define MFLOE_VERSION "2026.dev"
-#define MFLOE_WARN "\033[0m\033[31m\033[1m\033[4mTabaarnack !\033[24m\033[39m\033[0m: "
-#define MFLOE_INFO "\033[0m\033[32m\033[1m\033[4mINFO\033[24m\033[39m\033[0m: "
+#define MFLOE_WARN termcolor::red << termcolor::bold << "Tabaarnack !" << termcolor::reset << ": "
+#define MFLOE_INFO termcolor::cyan << "INFO" << termcolor::reset << ": "
 
-#define BOLD_ "\033[1m"
-#define NORMAL_ "\033[0m"
+#define BOLD_ termcolor::bold << termcolor::color<104>
+#define NORMAL_ termcolor::reset
+
+#define YIELD_PARABOLA 0
+#define YIELD_ELLIPSE 1
+#define YIELD_ELLIPSE_ASYM 2
 
 class MFloe {
 public:
@@ -49,18 +54,21 @@ public:
   double activationTime{0.0}; // required contact duration for changing to a healing bonded
   double healingTime{0.0};    // reference duration that tune the healing rate
   double coverage0{0.0};      // healingRatio or healingProgress
-  
+
   int NbBondsInit{0}; // a reference initial number of bonds (computed when bonds are activated)
 
   AABB_2D aabb;
 
   bool verbose{false};
 
+  int yieldSurfaceModel{YIELD_PARABOLA};
+
   // interaction shared parameters
-  double kn{1e6}; // contact/bond normal stiffness
-  double kt{1e6}; // contact/bond tangent stiffness
-  double mu{0.5}; // contact friction coefficient
-  double Gc{2.0}; // ...
+  double kn{1e6};           // contact/bond normal stiffness
+  double kt{1e6};           // contact/bond tangent stiffness
+  double mu{0.5};           // contact friction coefficient
+  double Gc{2.0};           // critical energy release rate (per unit crack area)
+  double GcComprRatio{1.0}; // Gc_compression / Gc_traction
 
   MFloe();
   void head();
