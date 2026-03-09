@@ -49,7 +49,7 @@ public:
 
   int iconf{0};
   int iconfMaxEstimated{0};
-  double zgravNorm{9.81};
+  double zgravNorm{9.81}; /// DEPRECATED !?
 
   double activationTime{0.0}; // required contact duration for changing to a healing bonded
   double healingTime{0.0};    // reference duration that tune the healing rate
@@ -70,6 +70,10 @@ public:
   double Gc{2.0};           // critical energy release rate (per unit crack area)
   double GcComprRatio{1.0}; // Gc_compression / Gc_traction
 
+  // viscous drag forces
+  double DragCoef{0.5};
+  double seaMassDensity{1000.0};
+
   MFloe();
   void head();
 
@@ -77,6 +81,7 @@ public:
   void integrate();
   void accelerations();
   void computeForcesAndMoments();
+  void addDragForces();
   void updateNeighbors(double dmax);
 
   // Save and Load the configuration files (conf-files)

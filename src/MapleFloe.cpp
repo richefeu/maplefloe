@@ -71,6 +71,9 @@ void MFloe::saveConf(const char *name) {
     conf << "ELLIPSE_ASYM" << std::endl;
   }
 
+  conf << "DragCoef " << DragCoef << std::endl;
+  conf << "seaMassDensity " << seaMassDensity << std::endl;
+
   if (!Drivings.empty()) {
     conf << "nDriven " << Drivings.size() << std::endl;
     for (size_t d = 0; d < Drivings.size(); ++d) { Drivings[d]->write(conf); }
@@ -182,6 +185,10 @@ void MFloe::loadConf(const char *name) {
       } else {
         std::cout << MFLOE_WARN << "Unkown yielding model '" << model << "'" << std::endl;
       }
+    } else if (token == "DragCoef") {
+      conf >> DragCoef;
+    } else if (token == "seaMassDensity") {
+      conf >> seaMassDensity;
     } else if (token == "activationTime") {
       conf >> activationTime;
     } else if (token == "healingTime") {
@@ -569,6 +576,7 @@ void MFloe::accelerations() {
   }
 
   computeForcesAndMoments();
+  addDragForces();
 
   // Finally, compute the accelerations (translation and rotation)
   for (size_t i = 0; i < FloeElements.size(); i++) {
@@ -717,4 +725,17 @@ void MFloe::computeForcesAndMoments() {
     FloeElements[j].zforce += (Interactions[k].fs + Interactions[k].fsb);
 
   } // End loop over interactions
+}
+
+// ---------------------------------------------------------------
+// viscous drag forces
+// ---------------------------------------------------------------
+void MFloe::addDragForces() {
+  size_t nDriven = Drivings.size();
+  for (size_t i = nDriven; i < FloeElements.size(); i++) {
+    double R      = FloeElements[i].radius;
+    double h      = FloeElements[i].height;
+    double factor = DragCoef * seaMassDensity * std::pow(R * R * h, 0.666666666);
+    FloeElements[i].force -= factor * FloeElements[i].vel;
+  }
 }
