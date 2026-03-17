@@ -7,26 +7,33 @@ MFloeAssembler::MFloeAssembler() {
 
 // Read the command text-file
 void MFloeAssembler::read(const char *filename) {
-
   std::ifstream file(filename);
   if (!file.is_open()) { std::cout << MFLOE_PAC_WARN << "Cannot read " << filename << std::endl; }
+  read(file);
+}
+
+// Read the command text-file
+void MFloeAssembler::read(std::istream &is) {
 
   std::string token;
-  file >> token;
-  while (file.good()) {
+  is >> token;
+  while (is.good()) {
     if (token[0] == '/' || token[0] == '#' || token[0] == '!') {
-      getline(file, token); // ignore the rest of the current line
-      file >> token;        // next token
+      getline(is, token); // ignore the rest of the current line
+      is >> token;        // next token
       continue;
     } else if (token == "radiusRange") {
-      file >> Rmin >> Rmax;
+      is >> Rmin >> Rmax;
       std::cout << MFLOE_PAC_INFO << "Radius in range [" << Rmin << ", " << Rmax << "]" << std::endl;
     } else if (token == "radius") {
-      file >> Rmin;
+      is >> Rmin;
       Rmax = Rmin;
       std::cout << MFLOE_PAC_INFO << "Single radius is " << Rmin << std::endl;
+    } else if (token == "height") {
+      is >> height;
+      std::cout << MFLOE_PAC_INFO << "common height is " << height << std::endl;
     } else if (token == "rectangleZone") {
-      file >> aabb_zone.min.x >> aabb_zone.min.y >> aabb_zone.max.x >> aabb_zone.max.y;
+      is >> aabb_zone.min.x >> aabb_zone.min.y >> aabb_zone.max.x >> aabb_zone.max.y;
       zone.clear();
       zone.push_back({aabb_zone.min.x, aabb_zone.min.y});
       zone.push_back({aabb_zone.max.x, aabb_zone.min.y});
@@ -36,11 +43,11 @@ void MFloeAssembler::read(const char *filename) {
                 << ") to (" << aabb_zone.max.x << ", " << aabb_zone.max.y << ")" << std::endl;
     } else if (token == "anyZone") {
       size_t nbVertices = 0;
-      file >> nbVertices;
+      is >> nbVertices;
       zone.clear();
       vec2r vertex;
       for (size_t v = 0; v < nbVertices; v++) {
-        file >> vertex;
+        is >> vertex;
         zone.push_back(vertex);
       }
       aabb_zone.set_single(zone[0]);
@@ -48,13 +55,13 @@ void MFloeAssembler::read(const char *filename) {
       std::cout << MFLOE_PAC_INFO << "zone shape is from (" << aabb_zone.min.x << ", " << aabb_zone.min.y << ") to ("
                 << aabb_zone.max.x << ", " << aabb_zone.max.y << ")" << std::endl;
     } else if (token == "method") {
-      file >> method;
+      is >> method;
       std::cout << MFLOE_PAC_INFO << "Packing method is " << method << std::endl;
     } else if (token == "PoissonSampling_k") {
-      file >> PoissonSampling_k;
+      is >> PoissonSampling_k;
       std::cout << MFLOE_PAC_INFO << "PPoissonSampling_k is " << PoissonSampling_k << std::endl;
     } else if (token == "output_filename") {
-      file >> output_filename;
+      is >> output_filename;
       std::cout << MFLOE_PAC_INFO << "Output filename is " << output_filename << std::endl;
     }
     // Unknown token
@@ -62,7 +69,7 @@ void MFloeAssembler::read(const char *filename) {
       std::cout << MFLOE_PAC_WARN << "Unknown token: " << token << std::endl;
     }
 
-    file >> token;
+    is >> token;
   }
 }
 
@@ -80,7 +87,7 @@ void MFloeAssembler::pack_regular_triangles() {
     }
     l = 1.0 - l;
   }
-  
+
   std::cout << "Number of disks after Poisson sampling: " << disks.size() << std::endl;
   keepOnlyZone();
   std::cout << "Number of disks after keeping only zone: " << disks.size() << std::endl;
@@ -98,7 +105,7 @@ void MFloeAssembler::pack_regular_squares() {
       disks.push_back(D);
     }
   }
-  
+
   std::cout << "Number of disks after Poisson sampling: " << disks.size() << std::endl;
   keepOnlyZone();
   std::cout << "Number of disks after keeping only zone: " << disks.size() << std::endl;
@@ -136,9 +143,7 @@ void MFloeAssembler::keepOnlyZone() {
       const vec2r &P = disks[d].pos;
       if (((A.y > P.y) != (B.y > P.y)) && (P.x < (B.x - A.x) * (P.y - A.y) / (B.y - A.y) + A.x)) { inside = !inside; }
     }
-    if (inside) {
-      okDisks.push_back(disks[d]);
-    }
+    if (inside) { okDisks.push_back(disks[d]); }
   }
 
   disks.clear();

@@ -15,28 +15,28 @@ void Interaction::copy(Interaction &I) {
   fs  = I.fs;
   fsb = I.fsb;
 
-  meff     = I.meff;
+  // meff     = I.meff;
   A        = I.A;
   coverage = I.coverage;
   dn0      = I.dn0;
   t0       = I.t0;
 }
 
-// Z should be updated when using this method
-void Interaction::computeBondedArea(double h_i, double radius_i, int Z_i, double h_j, double radius_j, int Z_j) {
-
+// Nbonds needs to be already updated when using this method
+void Interaction::computeBondedArea(double h_i, double radius_i, int Nbonds_i, double h_j, double radius_j,
+                                    int Nbonds_j) {
   double h = std::min(h_i, h_j);
 
   double li = 2.0 * radius_i;
-  if (Z_i > 2) { li *= sin(M_PI / Z_i); }
+  if (Nbonds_i > 2) { li *= sin(M_PI / Nbonds_i); }
   double lj = 2.0 * radius_j;
-  if (Z_j > 2) { lj *= sin(M_PI / Z_j); }
-  double l = std::min(li, lj);
+  if (Nbonds_j > 2) { lj *= sin(M_PI / Nbonds_j); }
 
-  A = h * l;
+  double l = std::min(li, lj);
+  A        = h * l;
 }
 
-std::function<double(Interaction &, MFloe &)> Interaction::ruptureCriterion[3]{
+std::function<double(Interaction &, MFloe &)> Interaction::ruptureCriterion[4]{
 
     // -----------------------------------------------------------
     // ------ PARABOLA
@@ -45,6 +45,17 @@ std::function<double(Interaction &, MFloe &)> Interaction::ruptureCriterion[3]{
       double fct2 = 2.0 * I.coverage * I.A * System.kt * System.Gc;
 
       return (-I.fnb / fcn + (I.ftb * I.ftb + I.fsb * I.fsb) / fct2 - 1.0);
+    },
+
+    // -----------------------------------------------------------
+    // ------ HEAVISIDE
+    [](Interaction &I, MFloe &System) -> double {      
+      double fct2 = 2.0 * I.coverage * I.A * System.kt * System.Gc;
+      if (I.fnb < 0.0) {
+        return ((I.ftb * I.ftb + I.fsb * I.fsb) / fct2 - 1.0);
+      }
+      double fcn2 = 2.0 * I.coverage * I.A * System.kn * System.Gc;
+      return ((I.fnb * I.fnb) / fcn2 + (I.ftb * I.ftb + I.fsb * I.fsb) / fct2 - 1.0);
     },
 
     // -----------------------------------------------------------

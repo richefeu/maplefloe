@@ -22,7 +22,7 @@ struct Interaction {
   double fs{0.0};  // contact tangential force (out-of-plane)
   double fsb{0.0}; // bond tangential force (out-of-plane)
 
-  double meff{0.0};     // effective mass
+  // double meff{0.0};     // effective mass
   double A{0.0};        // bonding surface area
   double coverage{0.0}; // Ice coverage ratio
   double dn0{0.0};      // initial distance for bonds; fnb(dn0) = 0
@@ -33,7 +33,7 @@ struct Interaction {
   Interaction(size_t I, size_t J);
 
   void copy(Interaction &I);
-  void computeBondedArea(double h_i, double radius_i, int Z_i, double h_j, double radius_j, int Z_j);
+  void computeBondedArea(double h_i, double radius_i, int Nbonds_i, double h_j, double radius_j, int Nbonds_j);
 
-  static std::function<double(Interaction &, MFloe &)> ruptureCriterion[3];
+  static std::function<double(Interaction &, MFloe &)> ruptureCriterion[4];
 };

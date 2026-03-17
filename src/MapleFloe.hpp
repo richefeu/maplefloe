@@ -1,4 +1,4 @@
-// ....
+// ...
 #pragma once
 
 #include <cmath>
@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -13,6 +14,8 @@
 #include "Driving.hpp"
 #include "FloeElement.hpp"
 #include "Interaction.hpp"
+#include "MFloeAssembler.hpp"
+// #include "STF.hpp"
 
 #include "toofus/AABB_2D.hpp"
 #include "toofus/mat4.hpp"
@@ -27,8 +30,9 @@
 #define NORMAL_ termcolor::reset
 
 #define YIELD_PARABOLA 0
-#define YIELD_ELLIPSE 1
-#define YIELD_ELLIPSE_ASYM 2
+#define YIELD_HEAVISIDE 1
+#define YIELD_ELLIPSE 2
+#define YIELD_ELLIPSE_ASYM 3
 
 class MFloe {
 public:
@@ -36,6 +40,9 @@ public:
   std::vector<Interaction> Interactions;
 
   std::vector<Driving *> Drivings;
+
+  // STFs
+  // STF<double> *waveFieldModel{nullptr};
 
   // parameters
   double t{0.0};
@@ -49,7 +56,9 @@ public:
 
   int iconf{0};
   int iconfMaxEstimated{0};
-  double zgravNorm{9.81}; /// DEPRECATED !?
+  // double zgravNorm{9.81}; /// DEPRECATED !?
+
+  // FIXME: il faudrait un hmoyen de désactiver la cicatrisation
 
   double activationTime{0.0}; // required contact duration for changing to a healing bonded
   double healingTime{0.0};    // reference duration that tune the healing rate
@@ -96,6 +105,6 @@ public:
   void screenLog();
 
   // pre-processing functions
-  void computeMasseProperties(double density);
+  void computeMassProperties(double density);
   void activateBonds(double dmax);
 };

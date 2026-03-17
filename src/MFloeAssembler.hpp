@@ -17,16 +17,17 @@ indépendament de MapleFloe.
 #include "toofus/vec2.hpp"
 #include "toofus/geoPack2D.hpp"
 
-#define MFLOE_PAC_WARN "\033[0m\033[31m\033[1m\033[4mTabaarnack !\033[24m\033[39m\033[0m: "
-#define MFLOE_PAC_INFO "\033[0m\033[32m\033[1m\033[4mINFO\033[24m\033[39m\033[0m: "
-
-struct Disk {
-  vec2r pos;
-  double R{0.0};
-};
+#define MFLOE_PAC_WARN "\033[0m\033[31m\033[1m\033[4mPacking Tabaarnack !\033[24m\033[39m\033[0m: "
+#define MFLOE_PAC_INFO "\033[0m\033[32m\033[1m\033[4mPacking INFO\033[24m\033[39m\033[0m: "
 
 class MFloeAssembler {
 public:
+  
+  struct Disk {
+    vec2r pos;
+    double R{0.0};
+  };
+  
   std::vector<vec2r> zone;
   std::vector<Disk> disks;
   AABB_2D aabb_zone;
@@ -35,9 +36,11 @@ public:
 
   // radius range
   double Rmin{-1.0}, Rmax{-1.0};
+  double height{1.0}; // default height (not part of the packing itself)
 
   MFloeAssembler();
   void read(const char *filename);
+  void read(std::istream & is);
   void run();
   
   // packing methods
