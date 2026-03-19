@@ -29,8 +29,13 @@
 #define BOLD_ termcolor::bold << termcolor::color<104>
 #define NORMAL_ termcolor::reset
 
-#define MFLOE_SHOW(V)                                                                                                        \
+#ifdef DEBUG
+#define MFLOE_SHOW(V)                                                                                        \
+  if (debugEnabled)                                                                                          \
   std::cout << termcolor::color<155> << #V << "" << termcolor::reset << " = " << V << std::flush << std::endl
+#else
+#define MFLOE_SHOW(V)
+#endif
 
 #define YIELD_PARABOLA 0
 #define YIELD_HEAVISIDE 1
@@ -44,8 +49,9 @@ public:
 
   std::vector<Driving *> Drivings;
 
-  // STFs
+  // Spatio Temporal Fields
   // STF<double> *waveFieldModel{nullptr};
+  // STF<vec2r> *windFieldModel{nullptr};
 
   // parameters
   double t{0.0};
@@ -59,10 +65,8 @@ public:
 
   int iconf{0};
   int iconfMaxEstimated{0};
-  // double zgravNorm{9.81}; /// DEPRECATED !?
 
-  // FIXME: il faudrait un hmoyen de désactiver la cicatrisation
-
+  int healingEnabled{1};
   double activationTime{0.0}; // required contact duration for changing to a healing bonded
   double healingTime{0.0};    // reference duration that tune the healing rate
   double coverage0{0.0};      // healingRatio or healingProgress
@@ -72,6 +76,7 @@ public:
   AABB_2D aabb;
 
   bool verbose{false};
+  bool debugEnabled{true};
 
   int yieldSurfaceModel{YIELD_PARABOLA};
 

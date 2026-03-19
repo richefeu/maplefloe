@@ -1,8 +1,13 @@
+# ============================================================================
+#
+# ============================================================================
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
+
   CXX = g++-15
-  CXXFLAGS = -O3 -Wall -Wextra -pedantic -std=c++17
+  CXXFLAGS = -O3 -Wall -Wextra -pedantic -std=c++17 -D DEBUG
+	
   GLLINK = `pkg-config --libs gl glu glut`
 	GLFLAGS = `pkg-config --cflags gl glu glut`
 	# on apple, use brew to install freeglut and mesa-glu
@@ -11,9 +16,13 @@ ifeq ($(UNAME_S),Darwin)
 	GLFWFLAGS = `pkg-config --cflags glfw3`
 	
 else
+
   CXX = g++
   CXXFLAGS = -O3 -Wall -std=c++17
   GLLINK = -lGLU -lGL -L/usr/X11R6/lib -lglut -lXext -lX11
+	
+	# pour le moment on a pas encore tester de compiler sur un PC linux
+	
 endif
 
 # Ensure the toofus directory exists
@@ -28,15 +37,15 @@ SOURCES = MapleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp MFloeAssembl
 # Each cpp file listed below corresponds to an object file
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
-.PHONY: all clean clone_toofus
+.PHONY: all clean clean+ clone_toofus
 
-all: pac run seeold see2
+all: pac run see
 
 clean:
 	@echo "\033[0;32m-> Remove object files\033[0m"
 	rm -f *.o
 	@echo "\033[0;32m-> Remove compiled applications\033[0m"
-	rm -f pac run seeold see2
+	rm -f pac run seeold see
 	@echo "\033[0;32m-> Remove libMapleFloe.a\033[0m"
 	rm -f libMapleFloe.a
 
@@ -68,10 +77,10 @@ seeold: seeold.cpp libMapleFloe.a
 	$(CXX) $(CXXFLAGS) -c $< -o seeold.o $(GLFLAGS)
 	$(CXX) -o $@ seeold.o libMapleFloe.a $(GLLINK)
 	
-see2: see2.cpp libMapleFloe.a
-	@echo "\033[0;32m-> BUILDING SEE2 APPLICATION (GLFW version)" $@ "\033[0m"
-	$(CXX) $(CXXFLAGS) -c $< -o see2.o $(GLFWFLAGS)
-	$(CXX) -o $@ see2.o libMapleFloe.a $(GLFWLINK) -framework OpenGL
+see: see.cpp libMapleFloe.a
+	@echo "\033[0;32m-> BUILDING SEE APPLICATION (GLFW version)" $@ "\033[0m"
+	$(CXX) $(CXXFLAGS) -c $< -o see.o $(GLFWFLAGS)
+	$(CXX) -o $@ see.o libMapleFloe.a $(GLFWLINK) -framework OpenGL
 
 pac: pac.cpp MFloeAssembler.cpp
 	@echo "\033[0;32m-> BUILDING PAC APPLICATION" $@ "\033[0m"

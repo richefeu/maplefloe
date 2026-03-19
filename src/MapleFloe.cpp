@@ -10,14 +10,12 @@ MFloe::MFloe() {}
 // Print header
 // ---------------------------------------------------------
 void MFloe::head() {
-  std::cout << std::endl << termcolor::bright_white << termcolor::on_blue;
+  std::cout << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⣶⣄⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  " << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣴⣿⡄⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀ " << std::endl;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠰⣶⣾⣿⣿⣿⣿⣿⡇⠀⢠⣷⣤⣶⣿⡇⠀⠀⠀" << termcolor::reset << " MapleFloe - " << termcolor::yellow << MFLOE_VERSION
+  std::cout << "⠀⠀⠀⠀⠀⠀⠰⣶⣾⣿⣿⣿⣿⣿⡇⠀⢠⣷⣤⣶⣿⡇⠀⠀⠀" << " MapleFloe - " << termcolor::yellow << MFLOE_VERSION
             << termcolor::reset << std::endl;
-  std::cout << termcolor::bright_white << termcolor::on_blue;
-  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣀⣿⣿⣿⣿⣿⣧⣀⠀⠀" << termcolor::reset << " Université Grenoble Alpes" << std::endl;
-  std::cout << termcolor::bright_white << termcolor::on_blue;
+  std::cout << "⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣀⣿⣿⣿⣿⣿⣧⣀⠀⠀" << " Université Grenoble Alpes" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⣷⣦⣀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀" << std::endl;
   std::cout << "⠀⠀⢲⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀" << std::endl;
@@ -25,7 +23,7 @@ void MFloe::head() {
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⠉⠙⢻⣿⣿⡿⠛⠉⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠋⠁⠀⠀⠀⠸⡄⠀⠀⠀⠀⠀⠀⠀⠀" << std::endl;
   std::cout << "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀    " << std::endl;
-  std::cout << termcolor::reset << std::endl;
+  std::cout << std::endl;
 }
 
 // ---------------------------------------------------------
@@ -74,6 +72,15 @@ void MFloe::saveConf(const char *name) {
     conf << "ELLIPSE_ASYM" << std::endl;
   }
 
+  if (healingEnabled == 1) {
+    conf << "enableHealing" << std::endl;
+    conf << "activationTime " << activationTime << std::endl;
+    conf << "healingTime " << healingTime << std::endl;
+    conf << "coverage0 " << coverage0 << std::endl;
+  } else {
+    conf << "disableHealing" << std::endl;
+  }
+
   conf << "DragCoef " << DragCoef << std::endl;
   conf << "seaMassDensity " << seaMassDensity << std::endl;
 
@@ -89,7 +96,7 @@ void MFloe::saveConf(const char *name) {
          << FloeElements[i].zvel << ' ' << FloeElements[i].acc << ' ' << FloeElements[i].zacc << ' '
          << FloeElements[i].rot << ' ' << FloeElements[i].vrot << ' ' << FloeElements[i].arot << ' '
          << FloeElements[i].radius << ' ' << FloeElements[i].height << ' ' << FloeElements[i].inertia << ' '
-         << FloeElements[i].mass << ' ';
+         << FloeElements[i].mass;
     conf << std::endl;
   }
 
@@ -103,9 +110,9 @@ void MFloe::saveConf(const char *name) {
   for (size_t i = 0; i < Interactions.size(); i++) {
     if (fabs(Interactions[i].fn) < 1e-20 && Interactions[i].isBonded == false) { continue; }
     conf << Interactions[i].i << ' ' << Interactions[i].j << ' ' << Interactions[i].isBonded << ' '
-         << Interactions[i].fn << ' ' << Interactions[i].fnb << ' ' << Interactions[i].ft << ' ' << Interactions[i].ftb
-         << ' ' << Interactions[i].fs << ' ' << Interactions[i].fsb << ' ' << Interactions[i].A << ' '
-         << Interactions[i].coverage << ' ' << Interactions[i].dn0 << std::endl;
+         << Interactions[i].fn << ' ' << Interactions[i].fnb << ' ' << Interactions[i].ft << ' '
+         << Interactions[i].ftb << ' ' << Interactions[i].fs << ' ' << Interactions[i].fsb << ' '
+         << Interactions[i].A << ' ' << Interactions[i].coverage << ' ' << Interactions[i].dn0 << std::endl;
   }
 }
 
@@ -128,18 +135,22 @@ void MFloe::loadConf(const char *name) {
   // A warning for the placement of procesing commands
   auto warn_if_wrong_place = [&](const std::string &token) {
     if (FloeElements.empty()) {
-      std::cout << MFLOE_WARN << "the command " << token << " should be placed after the definition of FloeElements"
-                << std::endl;
+      std::cout << MFLOE_WARN << "the command " << token
+                << " should be placed after the definition of FloeElements" << std::endl;
     }
   };
 
   // Check header
   std::string prog;
   conf >> prog;
-  if (prog != "MFloe") { std::cout << MFLOE_WARN << "This seems not to be an input file for MapleFloe!" << std::endl; }
+  if (prog != "MFloe") {
+    std::cout << MFLOE_WARN << "This seems not to be an input file for MapleFloe!" << std::endl;
+  }
   std::string date;
   conf >> date;
-  if (date != MFLOE_VERSION) { std::cout << MFLOE_WARN << "The version-date should be " << MFLOE_VERSION << std::endl; }
+  if (date != MFLOE_VERSION) {
+    std::cout << MFLOE_WARN << "The version-date should be " << MFLOE_VERSION << std::endl;
+  }
 
   std::string token;
   conf >> token;
@@ -197,6 +208,12 @@ void MFloe::loadConf(const char *name) {
       conf >> DragCoef;
     } else if (token == "seaMassDensity") {
       conf >> seaMassDensity;
+    } else if (token == "enableHealing") {
+      healingEnabled = 1;
+      MFLOE_SHOW(healingEnabled);
+    } else if (token == "disableHealing") {
+      healingEnabled = 0;
+      MFLOE_SHOW(healingEnabled);
     } else if (token == "activationTime") {
       conf >> activationTime;
     } else if (token == "healingTime") {
@@ -222,8 +239,8 @@ void MFloe::loadConf(const char *name) {
       FloeElements.clear();
       FloeElement P;
       for (size_t i = 0; i < nb; i++) {
-        conf >> P.pos >> P.zpos >> P.vel >> P.zvel >> P.acc >> P.zacc >> P.rot >> P.vrot >> P.arot >> P.radius >>
-            P.height >> P.inertia >> P.mass;
+        conf >> P.pos >> P.zpos >> P.vel >> P.zvel >> P.acc >> P.zacc >> P.rot >> P.vrot >> P.arot >>
+            P.radius >> P.height >> P.inertia >> P.mass;
 
         FloeElements.push_back(P);
       }
@@ -275,8 +292,8 @@ void MFloe::loadConf(const char *name) {
       Interactions.clear();
       Interaction I;
       for (size_t k = 0; k < nb; k++) {
-        conf >> I.i >> I.j >> I.isBonded >> I.fn >> I.fnb >> I.ft >> I.ftb >> I.fs >> I.fsb >> I.A >> I.coverage >>
-            I.dn0;
+        conf >> I.i >> I.j >> I.isBonded >> I.fn >> I.fnb >> I.ft >> I.ftb >> I.fs >> I.fsb >> I.A >>
+            I.coverage >> I.dn0;
         Interactions.push_back(I);
       }
     }
@@ -354,7 +371,8 @@ void MFloe::computeMassProperties(double density) {
 void MFloe::activateBonds(double dmax) {
 
   if (dmax > dVerlet) {
-    std::cout << MFLOE_WARN << "@activateBonds, dVerlet is smaller than the bonding distance (they will not survive)"
+    std::cout << MFLOE_WARN
+              << "@activateBonds, dVerlet is smaller than the bonding distance (they will not survive)"
               << std::endl;
   }
 
@@ -496,8 +514,8 @@ void MFloe::updateNeighbors(double dmax) {
 /*
 toutes les particules sont libre de mouvement (on ne peut pas bloquer imposer une vitesse).
 Les statégies de chargement porterons idéalement sur l'imposition de force (éviter d'imposer une vitesse).
-Par exemple, le vent pourrait être un champ de vitesse qu'on transforme en champs de forces en tenant compte de la
-surface des particules.
+Par exemple, le vent pourrait être un champ de vitesse qu'on transforme en champs de forces en tenant compte
+de la surface des particules.
 */
 
 void MFloe::integrate() {
@@ -564,9 +582,9 @@ void MFloe::integrate() {
       // ****** Version pour debug des modèles d'interaction ******
       if (!Interactions.empty()) {
         time_data_file << t << ' ' << Interactions[0].isBonded << ' ' << Interactions[0].fnb << ' '
-                       << Interactions[0].ftb << ' ' << Interactions[0].fsb << ' ' << Interactions[0].fn << ' '
-                       << Interactions[0].ft << ' ' << Interactions[0].fs << ' ' << Interactions[0].coverage
-                       << std::endl;
+                       << Interactions[0].ftb << ' ' << Interactions[0].fsb << ' ' << Interactions[0].fn
+                       << ' ' << Interactions[0].ft << ' ' << Interactions[0].fs << ' '
+                       << Interactions[0].coverage << std::endl;
       }
 #else
       time_data_file << t << ' ' << std::endl;
@@ -642,7 +660,7 @@ void MFloe::computeForcesAndMoments() {
     // ===================================
     if (Interactions[k].isBonded == true) { // i and j are bonded
 
-      if (Interactions[k].t0 > 0.0) { // this means that healing is in progress
+      if (healingEnabled == 1 && Interactions[k].t0 > 0.0) { // this means that healing is in progress
         Interactions[k].coverage = 1.0 + (coverage0 - 1.0) * exp(-(t - Interactions[k].t0) / healingTime);
         if (Interactions[k].coverage > 0.999) { // no need to continue to compute a value that is nearly 1.0
           Interactions[k].t0       = -1.0;
@@ -697,42 +715,36 @@ void MFloe::computeForcesAndMoments() {
     // ===================================
     else if (dn < 0.0) { // it means that i and j are in contact (but not bonded)
 
-      if (Interactions[k].t0 == -1.0) { // this means that the contact is 'new',
-                                        // and we start to measure the time the contact is held
-        Interactions[k].t0 = t;
-      } else if (Interactions[k].t0 > dt && Interactions[k].t0 < t + dt && (t - Interactions[k].t0) > activationTime) {
+      if (healingEnabled == 1) {
+        if (Interactions[k].t0 == -1.0) { // this means that the contact is 'new',
+                                          // and we start to measure the time the contact is held
+          Interactions[k].t0 = t;
+        } else if (Interactions[k].t0 > dt && Interactions[k].t0 < t + dt &&
+                   (t - Interactions[k].t0) > activationTime) {
 
-        std::cout << "---> healing activated" << std::endl;
-        std::cout << "Interactions[k].isBonded = " << Interactions[k].isBonded << std::endl;
-        std::cout << "t0 = " << Interactions[k].t0 << std::endl;
-        std::cout << "t = " << t << std::endl;
-        std::cout << "dt = " << dt << std::endl;
-        std::cout << "activationTime = " << activationTime << std::endl;
-        std::cout << "k = " << k << ", A = " << Interactions[k].A << " (avant)" << std::endl;
+          // Healing starts
+          Interactions[k].isBonded = true;
+          FloeElements[i].Nbonds += 1;
+          FloeElements[j].Nbonds += 1;
 
-        // Healing starts
-        Interactions[k].isBonded = true;
-        FloeElements[i].Nbonds += 1;
-        FloeElements[j].Nbonds += 1;
+          Interactions[k].coverage = coverage0; // we may find this minimum coverage so that it doesn't break
+          Interactions[k].fnb      = Interactions[k].fn;
+          Interactions[k].ftb      = Interactions[k].ft;
+          Interactions[k].fsb      = Interactions[k].fs;
+          Interactions[k].fn       = 0.0;
+          Interactions[k].ft       = 0.0;
+          Interactions[k].fs       = 0.0;
+          Interactions[k].t0       = t;   // now t0 represents the beginning of healing
+          Interactions[k].dn0      = 0.0; // this ensures a smooth transition
 
-        Interactions[k].coverage = coverage0;
-        Interactions[k].fnb      = Interactions[k].fn;
-        Interactions[k].ftb      = Interactions[k].ft;
-        Interactions[k].fsb      = Interactions[k].fs;
-        Interactions[k].fn       = 0.0;
-        Interactions[k].ft       = 0.0;
-        Interactions[k].fs       = 0.0;
-        Interactions[k].t0       = t; // now t0 represents the beginning of healing
-        Interactions[k].dn0      = 0.0;
+          Interactions[k].computeBondedArea(FloeElements[i].height, FloeElements[i].radius,
+                                            FloeElements[i].Nbonds, FloeElements[j].height,
+                                            FloeElements[j].radius, FloeElements[j].Nbonds);
 
-        Interactions[k].computeBondedArea(FloeElements[i].height, FloeElements[i].radius, FloeElements[i].Nbonds,
-                                          FloeElements[j].height, FloeElements[j].radius, FloeElements[j].Nbonds);
-
-        // std::cout << "k = " << k << ", A = " << Interactions[k].A << std::endl;
-
-        // proceed to next interaction k
-        // (next time-step this interaction will be bonded with initial coverage)
-        continue;
+          // proceed to the next interaction k
+          // (next time-step, this interaction will be bonded with initial coverage)
+          continue;
+        }
       }
 
       // Elastic normal repulsion force
@@ -756,7 +768,8 @@ void MFloe::computeForcesAndMoments() {
 
     // Resultant force and moment
     // (in sea-plane)
-    vec2r f = (Interactions[k].fn + Interactions[k].fnb) * unit_n + (Interactions[k].ft + Interactions[k].ftb) * unit_t;
+    vec2r f = (Interactions[k].fn + Interactions[k].fnb) * unit_n +
+              (Interactions[k].ft + Interactions[k].ftb) * unit_t;
     FloeElements[i].force -= f;
     FloeElements[j].force += f;
     FloeElements[i].moment -= (Interactions[k].ft + Interactions[k].ftb) * Li;
