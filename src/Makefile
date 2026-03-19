@@ -30,13 +30,13 @@ OBJECTS = $(SOURCES:%.cpp=%.o)
 
 .PHONY: all clean clone_toofus
 
-all: pac run see
+all: pac run seeold see2
 
 clean:
 	@echo "\033[0;32m-> Remove object files\033[0m"
 	rm -f *.o
 	@echo "\033[0;32m-> Remove compiled applications\033[0m"
-	rm -f pac run see
+	rm -f pac run seeold see2
 	@echo "\033[0;32m-> Remove libMapleFloe.a\033[0m"
 	rm -f libMapleFloe.a
 
@@ -63,10 +63,10 @@ run: run.cpp libMapleFloe.a
 	$(CXX) $(CXXFLAGS) -c $< -o run.o
 	$(CXX) -o $@ run.o libMapleFloe.a
 
-see: see.cpp libMapleFloe.a
-	@echo "\033[0;32m-> BUILDING SEE APPLICATION" $@ "\033[0m"
-	$(CXX) $(CXXFLAGS) -c $< -o see.o $(GLFLAGS)
-	$(CXX) -o $@ see.o libMapleFloe.a $(GLLINK)
+seeold: seeold.cpp libMapleFloe.a
+	@echo "\033[0;32m-> BUILDING SEEOLD APPLICATION" $@ "\033[0m"
+	$(CXX) $(CXXFLAGS) -c $< -o seeold.o $(GLFLAGS)
+	$(CXX) -o $@ seeold.o libMapleFloe.a $(GLLINK)
 	
 see2: see2.cpp libMapleFloe.a
 	@echo "\033[0;32m-> BUILDING SEE2 APPLICATION (GLFW version)" $@ "\033[0m"
