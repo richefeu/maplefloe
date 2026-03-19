@@ -397,7 +397,7 @@ void MFloe::activateBonds(double dmax) {
                                       FloeElements[j].height, FloeElements[j].radius, FloeElements[j].Nbonds);
     // clang-format on
 
-    //std::cout << "A = " << Interactions[k].A << std::endl;
+    // std::cout << "A = " << Interactions[k].A << std::endl;
   }
 }
 
@@ -716,14 +716,14 @@ void MFloe::computeForcesAndMoments() {
         FloeElements[j].Nbonds += 1;
 
         Interactions[k].coverage = coverage0;
-        Interactions[k].fnb      = 0.0;
-        Interactions[k].ftb      = 0.0;
-        Interactions[k].fsb      = 0.0;
+        Interactions[k].fnb      = Interactions[k].fn;
+        Interactions[k].ftb      = Interactions[k].ft;
+        Interactions[k].fsb      = Interactions[k].fs;
         Interactions[k].fn       = 0.0;
         Interactions[k].ft       = 0.0;
         Interactions[k].fs       = 0.0;
         Interactions[k].t0       = t; // now t0 represents the beginning of healing
-        Interactions[k].dn0      = dn;
+        Interactions[k].dn0      = 0.0;
 
         Interactions[k].computeBondedArea(FloeElements[i].height, FloeElements[i].radius, FloeElements[i].Nbonds,
                                           FloeElements[j].height, FloeElements[j].radius, FloeElements[j].Nbonds);

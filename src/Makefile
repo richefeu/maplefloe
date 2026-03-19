@@ -6,6 +6,10 @@ ifeq ($(UNAME_S),Darwin)
   GLLINK = `pkg-config --libs gl glu glut`
 	GLFLAGS = `pkg-config --cflags gl glu glut`
 	# on apple, use brew to install freeglut and mesa-glu
+	
+	GLFWLINK = `pkg-config --libs glfw3`
+	GLFWFLAGS = `pkg-config --cflags glfw3`
+	
 else
   CXX = g++
   CXXFLAGS = -O3 -Wall -std=c++17
@@ -63,6 +67,11 @@ see: see.cpp libMapleFloe.a
 	@echo "\033[0;32m-> BUILDING SEE APPLICATION" $@ "\033[0m"
 	$(CXX) $(CXXFLAGS) -c $< -o see.o $(GLFLAGS)
 	$(CXX) -o $@ see.o libMapleFloe.a $(GLLINK)
+	
+see2: see2.cpp libMapleFloe.a
+	@echo "\033[0;32m-> BUILDING SEE2 APPLICATION (GLFW version)" $@ "\033[0m"
+	$(CXX) $(CXXFLAGS) -c $< -o see2.o $(GLFWFLAGS)
+	$(CXX) -o $@ see2.o libMapleFloe.a $(GLFWLINK) -framework OpenGL
 
 pac: pac.cpp MFloeAssembler.cpp
 	@echo "\033[0;32m-> BUILDING PAC APPLICATION" $@ "\033[0m"

@@ -29,6 +29,9 @@
 #define BOLD_ termcolor::bold << termcolor::color<104>
 #define NORMAL_ termcolor::reset
 
+#define MFLOE_SHOW(V)                                                                                                        \
+  std::cout << termcolor::color<155> << #V << "" << termcolor::reset << " = " << V << std::flush << std::endl
+
 #define YIELD_PARABOLA 0
 #define YIELD_HEAVISIDE 1
 #define YIELD_ELLIPSE 2

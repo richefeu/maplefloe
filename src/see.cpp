@@ -831,6 +831,8 @@ int main(int argc, char *argv[]) {
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  
+  
 
   // ==== Enter GLUT event processing cycle
   fit_view();
