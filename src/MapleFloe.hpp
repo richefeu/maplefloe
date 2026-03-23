@@ -21,6 +21,7 @@
 #include "toofus/mat4.hpp"
 #include "toofus/toofus-gate/termcolor/termcolor.hpp"
 #include "toofus/vec2.hpp"
+#include "toofus/profiler.hpp"
 
 #define MFLOE_VERSION "2026.dev"
 #define MFLOE_WARN termcolor::red << termcolor::bold << "Tabaarnack !" << termcolor::reset << ": "
@@ -87,6 +88,10 @@ public:
   double Gc{2.0};           // critical energy release rate (per unit crack area)
   double GcComprRatio{1.0}; // Gc_compression / Gc_traction
 
+  // default parameters used for pre-processing 
+  double defaultFloeHeight{1.0};
+  double defaultFloeMassDensity{1027.0};
+  
   // viscous drag forces
   double DragCoef{0.5};
   double seaMassDensity{1000.0};
@@ -95,6 +100,7 @@ public:
   void head();
 
   // Core functions for the computations
+  void initialChecks();
   void integrate();
   void accelerations();
   void computeForcesAndMoments();

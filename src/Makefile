@@ -6,7 +6,8 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 
   CXX = g++-15
-  CXXFLAGS = -O3 -Wall -Wextra -pedantic -std=c++17 -D DEBUG
+  CXXFLAGS = -O3 -Wall -Wextra -pedantic -std=c++17 -D DEBUG -D ENABLE_PROFILING
+	# Remark: see will not work with ENABLE_PROFILING, so use it only when required
 	
   GLLINK = `pkg-config --libs gl glu glut`
 	GLFLAGS = `pkg-config --cflags gl glu glut`
@@ -79,7 +80,7 @@ seeold: seeold.cpp libMapleFloe.a
 	
 see: see.cpp libMapleFloe.a
 	@echo "\033[0;32m-> BUILDING SEE APPLICATION (GLFW version)" $@ "\033[0m"
-	$(CXX) $(CXXFLAGS) -c $< -o see.o $(GLFWFLAGS)
+	$(CXX) $(CXXFLAGS) -c $< -o see.o $(GLFWFLAGS) -Wno-missing-field-initializers
 	$(CXX) -o $@ see.o libMapleFloe.a $(GLFWLINK) -framework OpenGL
 
 pac: pac.cpp MFloeAssembler.cpp

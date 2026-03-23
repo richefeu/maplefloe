@@ -51,7 +51,7 @@ std::function<double(Interaction &, MFloe &)> Interaction::ruptureCriterion[4]{
     // ------ HEAVISIDE
     [](Interaction &I, MFloe &System) -> double {      
       double fct2 = 2.0 * I.coverage * I.A * System.kt * System.Gc;
-      if (I.fnb < 0.0) {
+      if (I.fnb > 0.0) { // (overlaping when dn0 = 0)
         return ((I.ftb * I.ftb + I.fsb * I.fsb) / fct2 - 1.0);
       }
       double fcn2 = 2.0 * I.coverage * I.A * System.kn * System.Gc;

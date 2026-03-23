@@ -29,10 +29,10 @@ void MFloeAssembler::read(std::istream &is) {
       is >> Rmin;
       Rmax = Rmin;
       std::cout << MFLOE_PAC_INFO << "Single radius is " << Rmin << std::endl;
-    } else if (token == "height") {
+    } /*else if (token == "height") {
       is >> height;
       std::cout << MFLOE_PAC_INFO << "common height is " << height << std::endl;
-    } else if (token == "rectangleZone") {
+    } */ else if (token == "rectangleZone") {
       is >> aabb_zone.min.x >> aabb_zone.min.y >> aabb_zone.max.x >> aabb_zone.max.y;
       zone.clear();
       zone.push_back({aabb_zone.min.x, aabb_zone.min.y});
@@ -59,7 +59,7 @@ void MFloeAssembler::read(std::istream &is) {
       std::cout << MFLOE_PAC_INFO << "Packing method is " << method << std::endl;
     } else if (token == "PoissonSampling_k") {
       is >> PoissonSampling_k;
-      std::cout << MFLOE_PAC_INFO << "PPoissonSampling_k is " << PoissonSampling_k << std::endl;
+      std::cout << MFLOE_PAC_INFO << "PoissonSampling_k is " << PoissonSampling_k << std::endl;
     } else if (token == "output_filename") {
       is >> output_filename;
       std::cout << MFLOE_PAC_INFO << "Output filename is " << output_filename << std::endl;

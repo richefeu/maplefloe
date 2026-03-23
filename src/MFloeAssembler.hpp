@@ -36,7 +36,7 @@ public:
 
   // radius range
   double Rmin{-1.0}, Rmax{-1.0};
-  double height{1.0}; // default height (not part of the packing itself)
+  //double height{1.0}; // default height (not part of the packing itself)
 
   MFloeAssembler();
   void read(const char *filename);

@@ -220,6 +220,10 @@ void MFloe::loadConf(const char *name) {
       conf >> healingTime;
     } else if (token == "coverage0") {
       conf >> coverage0;
+    } else if (token == "defaultFloeHeight") {
+      conf >> defaultFloeHeight;
+    } else if (token == "defaultFloeMassDensity") {
+      conf >> defaultFloeMassDensity;
     } else if (token == "nDriven") {
       size_t nDriven;
       conf >> nDriven;
@@ -250,14 +254,17 @@ void MFloe::loadConf(const char *name) {
       FloeElements.push_back(P);
     } else if (token == "addFloeElementsFileXYR") {
       FloeElement P;
+      P.height = defaultFloeHeight;
+
       std::string filename;
-      conf >> filename >> P.height >> P.inertia >> P.mass;
+      conf >> filename;
 
       std::ifstream xyrFile(filename);
       while (xyrFile.good()) {
         xyrFile >> P.pos >> P.radius;
         FloeElements.push_back(P);
       }
+      computeMassProperties(defaultFloeMassDensity);
     } else if (token == "<packing>") {
       std::cout << "<packing> ... ";
       std::stringstream packingCommands;
@@ -280,7 +287,7 @@ void MFloe::loadConf(const char *name) {
       assembler.run();
 
       FloeElement P;
-      P.height = assembler.height;
+      P.height = defaultFloeHeight; // assembler.height;
       for (size_t i = 0; i < assembler.disks.size(); i++) {
         P.pos    = assembler.disks[i].pos;
         P.radius = assembler.disks[i].R;
@@ -462,16 +469,37 @@ void MFloe::screenLog() {
             << std::setprecision(5) << BOLD_ << HealingAreaCovered * 100 << NORMAL_
             << std::setprecision(10) << " of total healing area " << BOLD_ << HealingArea << NORMAL_ << std::endl;
   std::cout << " #currently healing bonds = " << BOLD_ << NbHealingCurrent << NORMAL_ << std::endl;
-  std::cout << " Ktrans = " << BOLD_ << Ktrans << NORMAL_ 
-            << ", Krot = " << BOLD_ << Krot << NORMAL_ << std::endl;
+  std::cout << " Linear  Kinetic Energy = " << BOLD_ << Ktrans << NORMAL_ << std::endl
+            << " Angular Kinetic Energy = " << BOLD_ << Krot << NORMAL_ << std::endl;
   std::cout << "————————————————————————————————————————————————————————————————" << std::endl;
   // clang-format on
 }
+
+
+void MFloe::initialChecks() {
+  double meanMass = 0.0;
+  for (size_t i = 0 ; i < FloeElements.size(); i++) {
+    meanMass += FloeElements[i].mass;
+  }
+  meanMass /= static_cast<double>(FloeElements.size());
+  
+  double criticalTimeStep = M_PI * sqrt(meanMass / kn);
+  
+  std::cout << std::endl;
+  std::cout << "————————————————————————————————————————————————————————————————" << std::endl;
+  std::cout << " critical time step dtc = " << criticalTimeStep << std::endl;
+  std::cout << "           time step dt = " << dt << std::endl;
+  std::cout << "               dtc / dt = " << criticalTimeStep / dt << std::endl;
+  std::cout << "————————————————————————————————————————————————————————————————" << std::endl;
+}
+
 
 // ----------------------------------------------------------------------
 // O(N^2) algorithm for updating the known neighbors by each FloeElement
 // ----------------------------------------------------------------------
 void MFloe::updateNeighbors(double dmax) {
+  START_TIMER("updateNeighbors");
+  
   // store ft because the list will be erased before being rebuilt
   std::vector<Interaction> storedInteractions(Interactions.size());
   std::copy(Interactions.begin(), Interactions.end(), storedInteractions.begin());
@@ -510,15 +538,11 @@ void MFloe::updateNeighbors(double dmax) {
 // ---------------------------------------------------------
 // The integration loop (velocity-Verlet scheme)
 // ---------------------------------------------------------
-
-/*
-toutes les particules sont libre de mouvement (on ne peut pas bloquer imposer une vitesse).
-Les statégies de chargement porterons idéalement sur l'imposition de force (éviter d'imposer une vitesse).
-Par exemple, le vent pourrait être un champ de vitesse qu'on transforme en champs de forces en tenant compte
-de la surface des particules.
-*/
-
 void MFloe::integrate() {
+  START_TIMER("integrate");
+  
+  initialChecks();
+  
   double dt_2  = 0.5 * dt;
   double dt2_2 = 0.5 * dt * dt;
 
@@ -528,6 +552,8 @@ void MFloe::integrate() {
 
   size_t nDriven = Drivings.size();
 
+  // if (drivingSetup != nullptr) { drivingSetup->init(); }
+
   saveConf(iconf); // save before any computation
   screenLog();
   ++iconf;
@@ -536,6 +562,7 @@ void MFloe::integrate() {
   std::cout << termcolor::green << "Beginning iterations" << termcolor::reset << std::endl;
   while (t < tmax) {
 
+    // the velocity driven elements
     for (size_t i = 0; i < nDriven; ++i) {
       Drivings[i]->set(t);
       FloeElements[i].vel.set(Drivings[i]->vx, Drivings[i]->vy);
@@ -547,6 +574,7 @@ void MFloe::integrate() {
       FloeElements[i].rot += dt * FloeElements[i].vrot;
     }
 
+    // the free elements
     for (size_t i = nDriven; i < FloeElements.size(); i++) {
       FloeElements[i].pos += dt * FloeElements[i].vel + dt2_2 * FloeElements[i].acc;
       FloeElements[i].zpos += dt * FloeElements[i].zvel + dt2_2 * FloeElements[i].zacc;
@@ -559,13 +587,14 @@ void MFloe::integrate() {
 
     accelerations();
 
+    // en fait il faudrait faire cela que pour les force imposées
+    /*
     for (size_t i = nDriven; i < FloeElements.size(); i++) {
       FloeElements[i].vel += dt_2 * FloeElements[i].acc;
       FloeElements[i].zvel += dt_2 * FloeElements[i].zacc;
       FloeElements[i].vrot += dt_2 * FloeElements[i].arot;
     }
-
-    // horizontal viscuous drag forces
+    */
 
     t += dt;
 
@@ -610,6 +639,8 @@ void MFloe::integrate() {
 // Compute the accelerations
 // ---------------------------------------------------------
 void MFloe::accelerations() {
+  START_TIMER("accelerations");
+  
   // Set forces and moments to zero
   for (size_t i = 0; i < FloeElements.size(); ++i) {
     FloeElements[i].force.reset();
@@ -635,6 +666,7 @@ void MFloe::accelerations() {
 // The function to compute force interactions between FloeElements
 // ---------------------------------------------------------------
 void MFloe::computeForcesAndMoments() {
+  START_TIMER("computeForcesAndMoments");
 
   for (size_t k = 0; k < Interactions.size(); ++k) {
 
@@ -645,14 +677,19 @@ void MFloe::computeForcesAndMoments() {
 
     vec2r unit_n = branch;
     double len   = unit_n.normalize();
-    vec2r relVel = FloeElements[j].vel - FloeElements[i].vel; // Does not account for rotation (yet)
+    // vec2r relVel = FloeElements[j].vel - FloeElements[i].vel; // Does not account for rotation (yet)
 
     vec2r unit_t(-unit_n.y, unit_n.x);
     double dn = len - FloeElements[i].radius - FloeElements[j].radius;
 
-    double Li   = FloeElements[i].radius + 0.5 * dn;
-    double Lj   = FloeElements[j].radius + 0.5 * dn;
-    double vijt = relVel * unit_t - FloeElements[i].vrot * Li - FloeElements[j].vrot * Lj;
+    double Li = FloeElements[i].radius + 0.5 * dn;
+    double Lj = FloeElements[j].radius + 0.5 * dn;
+
+    vec2r relVel = (FloeElements[j].vel + Lj * FloeElements[j].vrot * (-unit_t)) -
+                   (FloeElements[i].vel + Li * FloeElements[i].vrot * (unit_t));
+    // il faudra vérifier le calcul de relVel (puis le simplifier)
+
+    double vijt = relVel * unit_t /*- FloeElements[i].vrot * Li - FloeElements[j].vrot * Lj*/;
     double vijs = FloeElements[j].zvel - FloeElements[i].zvel;
 
     // ===================================
@@ -785,6 +822,7 @@ void MFloe::computeForcesAndMoments() {
 // viscous drag forces
 // ---------------------------------------------------------------
 void MFloe::addDragForces() {
+  START_TIMER("addDragForces");
   size_t nDriven = Drivings.size();
   for (size_t i = nDriven; i < FloeElements.size(); i++) {
     double R      = FloeElements[i].radius;

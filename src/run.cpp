@@ -10,6 +10,8 @@
 // and then integrates the simulation.
 // ==============================================================================
 int main(int argc, char const *argv[]) {
+  INIT_TIMERS();
+  
   MFloe simu;
   simu.head();
 
@@ -44,6 +46,8 @@ int main(int argc, char const *argv[]) {
     std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
     return 1;
   }
+
+  PRINT_TIMERS("maplefloe");
 
   return 0;
 }
