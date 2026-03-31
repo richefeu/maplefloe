@@ -19,9 +19,9 @@
 
 #include "toofus/AABB_2D.hpp"
 #include "toofus/mat4.hpp"
+#include "toofus/profiler.hpp"
 #include "toofus/toofus-gate/termcolor/termcolor.hpp"
 #include "toofus/vec2.hpp"
-#include "toofus/profiler.hpp"
 
 #define MFLOE_VERSION "2026.dev"
 #define MFLOE_WARN termcolor::red << termcolor::bold << "Tabaarnack !" << termcolor::reset << ": "
@@ -74,6 +74,8 @@ public:
 
   int NbBondsInit{0}; // a reference initial number of bonds (computed when bonds are activated)
 
+  std::ofstream breakage_data_file;
+
   AABB_2D aabb;
 
   bool verbose{false};
@@ -88,10 +90,10 @@ public:
   double Gc{2.0};           // critical energy release rate (per unit crack area)
   double GcComprRatio{1.0}; // Gc_compression / Gc_traction
 
-  // default parameters used for pre-processing 
+  // default parameters used for pre-processing
   double defaultFloeHeight{1.0};
   double defaultFloeMassDensity{1027.0};
-  
+
   // viscous drag forces
   double DragCoef{0.5};
   double seaMassDensity{1000.0};
@@ -116,6 +118,14 @@ public:
   // Functions for updating relevant details
   void updateBoundLimits();
 
+  int NbBondsCurrent{0};
+  int NbHealingCurrent{0};
+  double HealingArea{0.0};
+  double HealingAreaCovered{0.0};
+  double Ktrans{0.0};
+  double Krot{0.0};
+  mat4r VStress; // this is the moment tensor (V * Stress)
+  void computeMechanicalIndicators();
   void screenLog();
 
   // pre-processing functions

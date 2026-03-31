@@ -5,6 +5,10 @@ Interaction::Interaction() : i(0), j(0) {}
 
 Interaction::Interaction(size_t I, size_t J) : i(I), j(J) {}
 
+// ---------------------------------------------------------
+// We use this when rebuilding the neighbor list 
+// for retrieving the known interactions
+// ---------------------------------------------------------
 void Interaction::copy(Interaction &I) {
   isBonded = I.isBonded;
 
@@ -15,14 +19,15 @@ void Interaction::copy(Interaction &I) {
   fs  = I.fs;
   fsb = I.fsb;
 
-  // meff     = I.meff;
   A        = I.A;
   coverage = I.coverage;
   dn0      = I.dn0;
   t0       = I.t0;
 }
 
+// ---------------------------------------------------------
 // Nbonds needs to be already updated when using this method
+// ---------------------------------------------------------
 void Interaction::computeBondedArea(double h_i, double radius_i, int Nbonds_i, double h_j, double radius_j,
                                     int Nbonds_j) {
   double h = std::min(h_i, h_j);

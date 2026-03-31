@@ -14,7 +14,7 @@ int main(int argc, char const *argv[]) {
     cmd.parse(argc, argv);
 
     // Get the value parsed by each argument
-    std::string inputFile = inputFileArg.getValue();
+    std::string  inputFile = inputFileArg.getValue();
 
     MFloeAssembler Assemb;
     Assemb.read(inputFile.c_str());

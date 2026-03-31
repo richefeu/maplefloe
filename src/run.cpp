@@ -39,6 +39,7 @@ int main(int argc, char const *argv[]) {
       simu.loadConf(inputConf.c_str());
     }
 
+    simu.breakage_data_file.open("breakage_data_file.txt");
     simu.updateNeighbors(simu.dVerlet);
     simu.integrate();
 

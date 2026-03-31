@@ -4,7 +4,9 @@
 
 #include "MapleFloe.hpp"
 
-MFloe::MFloe() {}
+MFloe::MFloe() {
+  
+}
 
 // ---------------------------------------------------------
 // Print header
@@ -161,18 +163,25 @@ void MFloe::loadConf(const char *name) {
       continue;
     } else if (token == "t") {
       conf >> t;
+      MFLOE_SHOW(t);
     } else if (token == "tmax") {
       conf >> tmax;
+      MFLOE_SHOW(tmax);
     } else if (token == "dt") {
       conf >> dt;
+      MFLOE_SHOW(dt);
     } else if (token == "interClose") {
       conf >> interClose;
+      MFLOE_SHOW(interClose);
     } else if (token == "interOut") {
       conf >> interOut;
+      MFLOE_SHOW(interOut);
     } else if (token == "interHist") {
       conf >> interHist;
+      MFLOE_SHOW(interHist);
     } else if (token == "dVerlet") {
       conf >> dVerlet;
+      MFLOE_SHOW(dVerlet);
     } else if (token == "zgravNorm") {
       // conf >> zgravNorm; // DEPRECATED
       double bin;
@@ -182,32 +191,45 @@ void MFloe::loadConf(const char *name) {
       conf >> iconf;
     } else if (token == "kn") {
       conf >> kn;
+      MFLOE_SHOW(kn);
     } else if (token == "kt") {
       conf >> kt;
+      MFLOE_SHOW(kt);
     } else if (token == "mu") {
       conf >> mu;
+      MFLOE_SHOW(mu);
     } else if (token == "Gc") {
       conf >> Gc;
+      MFLOE_SHOW(Gc);
     } else if (token == "GcComprRatio") {
       conf >> GcComprRatio;
+      MFLOE_SHOW(GcComprRatio);
     } else if (token == "yieldModel") {
       std::string model;
       conf >> model;
       if (model == "PARABOLA") {
         yieldSurfaceModel = YIELD_PARABOLA;
+        std::cout << MFLOE_INFO << "yielding model 'PARABOLA'" << std::endl;
       } else if (model == "HEAVISIDE") {
         yieldSurfaceModel = YIELD_HEAVISIDE;
+        std::cout << MFLOE_INFO << "yielding model 'HEAVISIDE'" << std::endl;
       } else if (model == "ELLIPSE") {
         yieldSurfaceModel = YIELD_ELLIPSE;
+        std::cout << MFLOE_INFO << "yielding model 'ELLIPSE'" << std::endl;
       } else if (model == "ELLIPSE_ASYM") {
         yieldSurfaceModel = YIELD_ELLIPSE_ASYM;
+        std::cout << MFLOE_INFO << "yielding model 'ELLIPSE_ASYM'" << std::endl;
       } else {
         std::cout << MFLOE_WARN << "Unkown yielding model '" << model << "'" << std::endl;
+        yieldSurfaceModel = YIELD_PARABOLA;
+        std::cout << MFLOE_WARN << "yielding model set to 'PARABOLA'" << std::endl;
       }
     } else if (token == "DragCoef") {
       conf >> DragCoef;
+      MFLOE_SHOW(DragCoef);
     } else if (token == "seaMassDensity") {
       conf >> seaMassDensity;
+      MFLOE_SHOW(seaMassDensity);
     } else if (token == "enableHealing") {
       healingEnabled = 1;
       MFLOE_SHOW(healingEnabled);
@@ -216,17 +238,23 @@ void MFloe::loadConf(const char *name) {
       MFLOE_SHOW(healingEnabled);
     } else if (token == "activationTime") {
       conf >> activationTime;
+      MFLOE_SHOW(activationTime);
     } else if (token == "healingTime") {
       conf >> healingTime;
+      MFLOE_SHOW(healingTime);
     } else if (token == "coverage0") {
       conf >> coverage0;
+      MFLOE_SHOW(coverage0);
     } else if (token == "defaultFloeHeight") {
       conf >> defaultFloeHeight;
+      MFLOE_SHOW(defaultFloeHeight);
     } else if (token == "defaultFloeMassDensity") {
       conf >> defaultFloeMassDensity;
+      MFLOE_SHOW(defaultFloeMassDensity);
     } else if (token == "nDriven") {
       size_t nDriven;
       conf >> nDriven;
+      MFLOE_SHOW(nDriven);
       Drivings.clear();
       std::string keyword;
       for (size_t d = 0; d < nDriven; ++d) {
@@ -303,6 +331,15 @@ void MFloe::loadConf(const char *name) {
             I.coverage >> I.dn0;
         Interactions.push_back(I);
       }
+
+      NbBondsInit = 0;
+      for (size_t e = 0; e < FloeElements.size(); e++) { FloeElements[e].Nbonds = 0; }
+      for (size_t k = 0; k < Interactions.size(); ++k) {
+        if (Interactions[k].isBonded == false) continue;
+        FloeElements[Interactions[k].i].Nbonds += 1;
+        FloeElements[Interactions[k].j].Nbonds += 1;
+        NbBondsInit++;
+      }
     }
 
     // Processing commands that should be placed after
@@ -313,12 +350,14 @@ void MFloe::loadConf(const char *name) {
       double density;
       conf >> density;
       computeMassProperties(density);
-      std::cout << "ice density = " << density << std::endl;
+      std::cout << MFLOE_INFO << "Mass properties have been computed" << std::endl;
+      MFLOE_SHOW(density);
     } else if (token == "activateBonds") {
       warn_if_wrong_place(token);
       double distanceMaxForGluing;
       conf >> distanceMaxForGluing;
-      std::cout << "distanceMaxForGluing = " << distanceMaxForGluing << std::endl;
+      std::cout << MFLOE_INFO << "Bonds have been activated" << std::endl;
+      MFLOE_SHOW(distanceMaxForGluing);
       activateBonds(distanceMaxForGluing);
     }
 
@@ -361,6 +400,9 @@ void MFloe::updateBoundLimits() {
   aabb.max.set(xmax, ymax);
 }
 
+// ---------------------------------------------------------
+// Compute mass and inertia of each FloeElement
+// ---------------------------------------------------------
 void MFloe::computeMassProperties(double density) {
   for (size_t i = 0; i < FloeElements.size(); ++i) {
     double R = FloeElements[i].radius;
@@ -427,16 +469,15 @@ void MFloe::activateBonds(double dmax) {
 }
 
 // ---------------------------------------------------------
-// Periodically log useful informations
-// on how the computation goes
+// Compute some usefull informations (e.g., nb bonds, mean stress...)
 // ---------------------------------------------------------
-void MFloe::screenLog() {
+void MFloe::computeMechanicalIndicators() {
 
   // some counts
-  int NbBondsCurrent        = 0;
-  int NbHealingCurrent      = 0;
-  double HealingArea        = 0.0;
-  double HealingAreaCovered = 0.0;
+  NbBondsCurrent     = 0;
+  NbHealingCurrent   = 0;
+  HealingArea        = 0.0;
+  HealingAreaCovered = 0.0;
   for (size_t k = 0; k < Interactions.size(); k++) {
     if (Interactions[k].isBonded) {
       NbBondsCurrent++;
@@ -449,14 +490,45 @@ void MFloe::screenLog() {
   }
 
   // kinetic energy
-  double Ktrans  = 0.0;
-  double Krot    = 0.0;
+  Ktrans         = 0.0;
+  Krot           = 0.0;
   size_t nDriven = Drivings.size();
   for (size_t i = nDriven; i < FloeElements.size(); ++i) {
-
     Ktrans += 0.5 * FloeElements[i].mass * (FloeElements[i].vel * FloeElements[i].vel);
     Krot += 0.5 * FloeElements[i].inertia * (FloeElements[i].vrot * FloeElements[i].vrot);
   }
+
+  // mean tensorial moment (V * stress)
+  VStress.reset();
+  for (size_t k = 0; k < Interactions.size(); ++k) {
+    size_t i     = Interactions[k].i;
+    size_t j     = Interactions[k].j;
+    vec2r branch = FloeElements[j].pos - FloeElements[i].pos;
+    vec2r unit_n = branch;
+    unit_n.normalize();
+    vec2r unit_t(-unit_n.y, unit_n.x);
+    vec2r f = (Interactions[k].fn + Interactions[k].fnb) * unit_n +
+              (Interactions[k].ft + Interactions[k].ftb) * unit_t;
+
+    VStress.xx += f.x * branch.x;
+    VStress.xy += f.x * branch.y;
+    VStress.yx += f.y * branch.x;
+    VStress.yy += f.y * branch.y;
+  }
+
+  for (size_t i = 0; i < FloeElements.size(); ++i) {
+    double meanxy = 0.5 * (VStress.yx + VStress.xy);
+    VStress.yx = VStress.xy = meanxy;
+  }
+}
+
+// ---------------------------------------------------------
+// Periodically log useful informations
+// on how the computation goes
+// ---------------------------------------------------------
+void MFloe::screenLog() {
+
+  computeMechanicalIndicators();
 
   // clang-format off
   std::cout << std::endl;
@@ -471,20 +543,22 @@ void MFloe::screenLog() {
   std::cout << " #currently healing bonds = " << BOLD_ << NbHealingCurrent << NORMAL_ << std::endl;
   std::cout << " Linear  Kinetic Energy = " << BOLD_ << Ktrans << NORMAL_ << std::endl
             << " Angular Kinetic Energy = " << BOLD_ << Krot << NORMAL_ << std::endl;
+  std::cout << " Vol * meanStress = " << std::endl;
+  VStress.fancyPrint();
   std::cout << "————————————————————————————————————————————————————————————————" << std::endl;
   // clang-format on
 }
 
-
+// ---------------------------------------------------------
+// Shows critical time step
+// ---------------------------------------------------------
 void MFloe::initialChecks() {
   double meanMass = 0.0;
-  for (size_t i = 0 ; i < FloeElements.size(); i++) {
-    meanMass += FloeElements[i].mass;
-  }
+  for (size_t i = 0; i < FloeElements.size(); i++) { meanMass += FloeElements[i].mass; }
   meanMass /= static_cast<double>(FloeElements.size());
-  
+
   double criticalTimeStep = M_PI * sqrt(meanMass / kn);
-  
+
   std::cout << std::endl;
   std::cout << "————————————————————————————————————————————————————————————————" << std::endl;
   std::cout << " critical time step dtc = " << criticalTimeStep << std::endl;
@@ -493,13 +567,12 @@ void MFloe::initialChecks() {
   std::cout << "————————————————————————————————————————————————————————————————" << std::endl;
 }
 
-
 // ----------------------------------------------------------------------
 // O(N^2) algorithm for updating the known neighbors by each FloeElement
 // ----------------------------------------------------------------------
 void MFloe::updateNeighbors(double dmax) {
   START_TIMER("updateNeighbors");
-  
+
   // store ft because the list will be erased before being rebuilt
   std::vector<Interaction> storedInteractions(Interactions.size());
   std::copy(Interactions.begin(), Interactions.end(), storedInteractions.begin());
@@ -508,10 +581,8 @@ void MFloe::updateNeighbors(double dmax) {
   Interactions.clear();
   for (size_t i = 0; i < FloeElements.size(); ++i) {
     for (size_t j = i + 1; j < FloeElements.size(); ++j) {
-
       vec2r branch = FloeElements[j].pos - FloeElements[i].pos;
-
-      double sum = dmax + FloeElements[i].radius + FloeElements[j].radius;
+      double sum   = dmax + FloeElements[i].radius + FloeElements[j].radius;
       if (norm2(branch) <= sum * sum) { Interactions.push_back(Interaction(i, j)); }
     }
   }
@@ -540,15 +611,18 @@ void MFloe::updateNeighbors(double dmax) {
 // ---------------------------------------------------------
 void MFloe::integrate() {
   START_TIMER("integrate");
-  
+
   initialChecks();
-  
+
   double dt_2  = 0.5 * dt;
   double dt2_2 = 0.5 * dt * dt;
 
   iconfMaxEstimated = iconf + floor((tmax - t) / interHist);
 
   std::ofstream time_data_file("time_data.txt");
+
+  breakage_data_file << yieldSurfaceModel << ' ' << Gc << ' ' << GcComprRatio << ' ' << kn << ' ' << kt << ' '
+                     << std::endl << std::endl;
 
   size_t nDriven = Drivings.size();
 
@@ -607,7 +681,7 @@ void MFloe::integrate() {
     interOutC += dt;
     if (interOutC > interOut - dt_2) {
 
-#if 1
+#if 0
       // ****** Version pour debug des modèles d'interaction ******
       if (!Interactions.empty()) {
         time_data_file << t << ' ' << Interactions[0].isBonded << ' ' << Interactions[0].fnb << ' '
@@ -616,7 +690,15 @@ void MFloe::integrate() {
                        << Interactions[0].coverage << std::endl;
       }
 #else
-      time_data_file << t << ' ' << std::endl;
+      computeMechanicalIndicators();
+      // clang-format off
+      //                1           2 3 4 5           6                     7
+      time_data_file << t << ' ' << VStress << ' ' << NbBondsInit << ' ' << NbBondsCurrent << ' '
+                     // 8                          9                     10                           11
+                     << NbHealingCurrent << ' ' << HealingArea << ' ' << HealingAreaCovered << ' ' << Ktrans
+                     //        12
+                     << ' ' << Krot << std::endl;
+      // clang-format on
 #endif
       interOutC = 0.0;
     }
@@ -640,7 +722,7 @@ void MFloe::integrate() {
 // ---------------------------------------------------------
 void MFloe::accelerations() {
   START_TIMER("accelerations");
-  
+
   // Set forces and moments to zero
   for (size_t i = 0; i < FloeElements.size(); ++i) {
     FloeElements[i].force.reset();
@@ -677,7 +759,6 @@ void MFloe::computeForcesAndMoments() {
 
     vec2r unit_n = branch;
     double len   = unit_n.normalize();
-    // vec2r relVel = FloeElements[j].vel - FloeElements[i].vel; // Does not account for rotation (yet)
 
     vec2r unit_t(-unit_n.y, unit_n.x);
     double dn = len - FloeElements[i].radius - FloeElements[j].radius;
@@ -687,9 +768,8 @@ void MFloe::computeForcesAndMoments() {
 
     vec2r relVel = (FloeElements[j].vel + Lj * FloeElements[j].vrot * (-unit_t)) -
                    (FloeElements[i].vel + Li * FloeElements[i].vrot * (unit_t));
-    // il faudra vérifier le calcul de relVel (puis le simplifier)
 
-    double vijt = relVel * unit_t /*- FloeElements[i].vrot * Li - FloeElements[j].vrot * Lj*/;
+    double vijt = relVel * unit_t;
     double vijs = FloeElements[j].zvel - FloeElements[i].zvel;
 
     // ===================================
@@ -717,6 +797,14 @@ void MFloe::computeForcesAndMoments() {
       double crit = Interaction::ruptureCriterion[yieldSurfaceModel](Interactions[k], *this);
 
       if (crit >= 0.0) {
+
+        // stoker des infos
+        
+        breakage_data_file << t << ' ' << Interactions[k].i << ' ' << Interactions[k].j << ' '
+                           << Interactions[k].fnb << ' ' << Interactions[k].ftb << ' ' << Interactions[k].fsb
+                           << ' ' << Interactions[k].coverage << ' ' << Interactions[k].A << std::endl;
+        
+        
         Interactions[k].isBonded = false;
         Interactions[k].t0       = -1.0;
         Interactions[k].dn0      = 0.0; // not used anymore

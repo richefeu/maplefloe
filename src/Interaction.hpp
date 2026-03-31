@@ -22,7 +22,6 @@ struct Interaction {
   double fs{0.0};  // contact tangential force (out-of-plane)
   double fsb{0.0}; // bond tangential force (out-of-plane)
 
-  // double meff{0.0};     // effective mass
   double A{0.0};        // bonding surface area
   double coverage{0.0}; // Ice coverage ratio
   double dn0{0.0};      // initial distance for bonds; fnb(dn0) = 0
