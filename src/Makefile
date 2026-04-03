@@ -33,7 +33,7 @@ $(shell git clone https://github.com/richefeu/toofus.git > /dev/null 2>&1)
 endif
 
 # The list of source files for the library
-SOURCES = MapleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp MFloeAssembler.cpp
+SOURCES = MapleFloe.cpp FloeElement.cpp Interaction.cpp Driving.cpp BiaxSystem.cpp MFloeAssembler.cpp
 
 # Each cpp file listed below corresponds to an object file
 OBJECTS = $(SOURCES:%.cpp=%.o)

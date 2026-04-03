@@ -4,9 +4,7 @@
 
 #include "MapleFloe.hpp"
 
-MFloe::MFloe() {
-  
-}
+MFloe::MFloe() {}
 
 // ---------------------------------------------------------
 // Print header
@@ -116,6 +114,11 @@ void MFloe::saveConf(const char *name) {
          << Interactions[i].ftb << ' ' << Interactions[i].fs << ' ' << Interactions[i].fsb << ' '
          << Interactions[i].A << ' ' << Interactions[i].coverage << ' ' << Interactions[i].dn0 << std::endl;
   }
+  
+  if (biaxSystem != nullptr) {
+    biaxSystem->write(conf);
+  }
+  
 }
 
 // ---------------------------------------------------------
@@ -209,16 +212,16 @@ void MFloe::loadConf(const char *name) {
       conf >> model;
       if (model == "PARABOLA") {
         yieldSurfaceModel = YIELD_PARABOLA;
-        std::cout << MFLOE_INFO << "yielding model 'PARABOLA'" << std::endl;
+        MFLOE_DEBUG(std::cout << MFLOE_INFO << "yielding model 'PARABOLA'" << std::endl;);
       } else if (model == "HEAVISIDE") {
         yieldSurfaceModel = YIELD_HEAVISIDE;
-        std::cout << MFLOE_INFO << "yielding model 'HEAVISIDE'" << std::endl;
+        MFLOE_DEBUG(std::cout << MFLOE_INFO << "yielding model 'HEAVISIDE'" << std::endl;);
       } else if (model == "ELLIPSE") {
         yieldSurfaceModel = YIELD_ELLIPSE;
-        std::cout << MFLOE_INFO << "yielding model 'ELLIPSE'" << std::endl;
+        MFLOE_DEBUG(std::cout << MFLOE_INFO << "yielding model 'ELLIPSE'" << std::endl;);
       } else if (model == "ELLIPSE_ASYM") {
         yieldSurfaceModel = YIELD_ELLIPSE_ASYM;
-        std::cout << MFLOE_INFO << "yielding model 'ELLIPSE_ASYM'" << std::endl;
+        MFLOE_DEBUG(std::cout << MFLOE_INFO << "yielding model 'ELLIPSE_ASYM'" << std::endl;);
       } else {
         std::cout << MFLOE_WARN << "Unkown yielding model '" << model << "'" << std::endl;
         yieldSurfaceModel = YIELD_PARABOLA;
@@ -359,6 +362,24 @@ void MFloe::loadConf(const char *name) {
       std::cout << MFLOE_INFO << "Bonds have been activated" << std::endl;
       MFLOE_SHOW(distanceMaxForGluing);
       activateBonds(distanceMaxForGluing);
+    }
+
+    else if (token == "BiaxSystem") {
+      if (biaxSystem != nullptr) { delete biaxSystem; }
+      biaxSystem = new BiaxSystem;
+      biaxSystem->read(conf);
+    } else if (token == "BiaxMode") {
+      if (biaxSystem == nullptr) {
+        std::cout << MFLOE_WARN << "BiaxSystem must be defined before setting BiaxMode" << std::endl;
+        break;
+      }
+      biaxSystem->readMode(conf);
+    } else if (token == "BiaxData") {
+      if (biaxSystem == nullptr) {
+        std::cout << MFLOE_WARN << "BiaxSystem must be defined before reading BiaxData" << std::endl;
+        break;
+      }
+      biaxSystem->readData(conf);
     }
 
     // Unknown token
@@ -621,8 +642,12 @@ void MFloe::integrate() {
 
   std::ofstream time_data_file("time_data.txt");
 
-  breakage_data_file << yieldSurfaceModel << ' ' << Gc << ' ' << GcComprRatio << ' ' << kn << ' ' << kt << ' '
-                     << std::endl << std::endl;
+  if (breakage_data_file.is_open() == false) {
+    breakage_data_file.open("breakage_data_file.txt");
+    breakage_data_file << yieldSurfaceModel << ' ' << Gc << ' ' << GcComprRatio << ' ' << kn << ' ' << kt
+                       << ' ' << std::endl
+                       << std::endl;
+  }
 
   size_t nDriven = Drivings.size();
 
@@ -658,17 +683,23 @@ void MFloe::integrate() {
       FloeElements[i].rot += dt * FloeElements[i].vrot + dt2_2 * FloeElements[i].arot;
       FloeElements[i].vrot += dt_2 * FloeElements[i].arot;
     }
+    
+    if (biaxSystem != nullptr) {
+      biaxSystem->drivePosVel1(dt, dt_2, dt2_2);
+    }
 
     accelerations();
 
     // en fait il faudrait faire cela que pour les force imposées
-    /*
     for (size_t i = nDriven; i < FloeElements.size(); i++) {
       FloeElements[i].vel += dt_2 * FloeElements[i].acc;
       FloeElements[i].zvel += dt_2 * FloeElements[i].zacc;
       FloeElements[i].vrot += dt_2 * FloeElements[i].arot;
+    }   
+    
+    if (biaxSystem != nullptr) {
+      biaxSystem->driveVel2(dt_2);
     }
-    */
 
     t += dt;
 
@@ -732,8 +763,10 @@ void MFloe::accelerations() {
     FloeElements[i].zacc = 0.0; // gravity will be added at the end (or never, we need to discuss this point)
     FloeElements[i].arot = 0.0;
   }
+  if (biaxSystem != nullptr) { biaxSystem->resetForces(); }
 
   computeForcesAndMoments();
+  if (biaxSystem != nullptr) { biaxSystem->computeContactForces(*this); }
   addDragForces();
 
   // Finally, compute the accelerations (translation and rotation)
@@ -742,6 +775,7 @@ void MFloe::accelerations() {
     FloeElements[i].zacc = FloeElements[i].zforce / FloeElements[i].mass /* - zgravNorm */;
     FloeElements[i].arot = FloeElements[i].moment / FloeElements[i].inertia;
   }
+  if (biaxSystem != nullptr) { biaxSystem->computeAccelerations(); }
 }
 
 // ---------------------------------------------------------------
@@ -799,12 +833,11 @@ void MFloe::computeForcesAndMoments() {
       if (crit >= 0.0) {
 
         // stoker des infos
-        
+
         breakage_data_file << t << ' ' << Interactions[k].i << ' ' << Interactions[k].j << ' '
                            << Interactions[k].fnb << ' ' << Interactions[k].ftb << ' ' << Interactions[k].fsb
                            << ' ' << Interactions[k].coverage << ' ' << Interactions[k].A << std::endl;
-        
-        
+
         Interactions[k].isBonded = false;
         Interactions[k].t0       = -1.0;
         Interactions[k].dn0      = 0.0; // not used anymore

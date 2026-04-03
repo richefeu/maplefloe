@@ -15,6 +15,7 @@
 #include "FloeElement.hpp"
 #include "Interaction.hpp"
 #include "MFloeAssembler.hpp"
+#include "BiaxSystem.hpp"
 // #include "STF.hpp"
 
 #include "toofus/AABB_2D.hpp"
@@ -34,8 +35,15 @@
 #define MFLOE_SHOW(V)                                                                                        \
   if (debugEnabled)                                                                                          \
   std::cout << termcolor::color<155> << #V << "" << termcolor::reset << " = " << V << std::flush << std::endl
+
+#define MFLOE_DEBUG(V)                                                                                       \
+  if (debugEnabled) { V }
+
 #else
+
 #define MFLOE_SHOW(V)
+#define MFLOE_DEBUG(V)
+
 #endif
 
 #define YIELD_PARABOLA 0
@@ -49,6 +57,8 @@ public:
   std::vector<Interaction> Interactions;
 
   std::vector<Driving *> Drivings;
+  
+  BiaxSystem * biaxSystem{nullptr};
 
   // Spatio Temporal Fields
   // STF<double> *waveFieldModel{nullptr};
